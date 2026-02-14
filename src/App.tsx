@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './components/DashboardLayout'
+import RequireTab from './components/RequireTab'
 import DashboardHome from './pages/DashboardHome'
 import Users from './pages/Users'
 import Categories from './pages/Categories'
@@ -13,7 +16,6 @@ import Blogs from './pages/Blogs'
 import Content from './pages/Content'
 import CaseStudies from './pages/CaseStudies'
 import Events from './pages/Events'
-import './App.css'
 
 function App() {
   return (
@@ -21,10 +23,14 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
-              <Route path="users" element={<Users />} />
+              <Route element={<RequireTab tabKey="users" />}>
+                <Route path="users" element={<Users />} />
+              </Route>
               <Route path="categories" element={<Categories />} />
               <Route path="products" element={<Products />} />
               <Route path="testimonials" element={<Testimonials />} />

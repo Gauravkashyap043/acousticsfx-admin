@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext.js';
 import { me } from '../api/auth';
-import { ApiError } from '../lib/api';
 
 export function useMeQuery() {
-  const { token, logout } = useAuth();
+  const { token } = useAuth();
 
   return useQuery({
     queryKey: ['me'],
