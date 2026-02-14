@@ -10,7 +10,7 @@ export class ApiError extends Error {
   }
 }
 
-const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
 export function getToken(): string | null {
   try {

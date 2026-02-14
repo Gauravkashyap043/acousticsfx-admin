@@ -13,6 +13,7 @@ const navItems = [
   { to: '/dashboard/testimonials', label: 'Testimonials', end: false },
   { to: '/dashboard/contact', label: 'Contact details', end: false },
   { to: '/dashboard/blogs', label: 'Blogs & articles', end: false },
+  { to: '/dashboard/content', label: 'Site content', end: false },
   { to: '/dashboard/case-studies', label: 'Case studies', end: false },
   { to: '/dashboard/events', label: 'Events', end: false },
 ] as const;

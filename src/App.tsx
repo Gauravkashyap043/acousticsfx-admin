@@ -10,6 +10,7 @@ import Products from './pages/Products'
 import Testimonials from './pages/Testimonials'
 import Contact from './pages/Contact'
 import Blogs from './pages/Blogs'
+import Content from './pages/Content'
 import CaseStudies from './pages/CaseStudies'
 import Events from './pages/Events'
 import './App.css'
@@ -29,6 +30,7 @@ function App() {
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="contact" element={<Contact />} />
               <Route path="blogs" element={<Blogs />} />
+              <Route path="content" element={<Content />} />
               <Route path="case-studies" element={<CaseStudies />} />
               <Route path="events" element={<Events />} />
             </Route>

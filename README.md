@@ -1,6 +1,6 @@
 # acousticsfx-admin
 
-Vite + React admin dashboard for AcousticsFX. Authenticates with the backend and provides dashboard UIs for users, categories, products, testimonials, contact, blogs, case studies, and events.
+Vite + React admin dashboard for AcousticsFX. Authenticates with the backend and provides dashboard UIs for users, categories, products, testimonials, contact, blogs, case studies, events, and site content (CMS).
 
 ## Stack
 
@@ -30,14 +30,19 @@ src/
 ├── App.tsx               # Router + AuthProvider, route definitions
 ├── App.css
 ├── api/
-│   └── auth.ts           # login(), me() — calls /api/auth/login, /api/auth/me
+│   ├── auth.ts           # login(), me() — calls /api/auth/login, /api/auth/me
+│   └── content.ts       # listContent(), getContentByKey(), updateContent(), deleteContent() — /api/admin/content
 ├── lib/
 │   └── api.ts            # request<T>(), getToken(), setToken(), clearToken(), ApiError, base URL
 ├── context/
 │   └── AuthContext.tsx   # token, isAuthenticated, setToken, logout; useAuth()
 ├── hooks/
-│   ├── useLoginMutation.ts  # Login mutation, onSuccess sets token via AuthContext
-│   └── useMeQuery.ts        # Me query (enabled when token set), 5m staleTime
+│   ├── useLoginMutation.ts     # Login mutation, onSuccess sets token via AuthContext
+│   ├── useMeQuery.ts          # Me query (enabled when token set), 5m staleTime
+│   ├── useContentList.ts      # List content (admin)
+│   ├── useContentByKey.ts     # Get one content by key
+│   ├── useUpdateContentMutation.ts  # Update content (invalidates content list)
+│   └── useDeleteContentMutation.ts  # Delete content (invalidates content list)
 ├── components/
 │   ├── ProtectedRoute.tsx   # Redirects to / if not isAuthenticated; else <Outlet />
 │   └── DashboardLayout.tsx # Shell for dashboard pages
@@ -50,6 +55,7 @@ src/
     ├── Testimonials.tsx
     ├── Contact.tsx
     ├── Blogs.tsx
+    ├── Content.tsx      # Site content: list keys, edit value/type, save via PUT /api/admin/content/:key
     ├── CaseStudies.tsx
     └── Events.tsx
 ```
@@ -67,6 +73,7 @@ src/
 | `/dashboard/testimonials` | Testimonials | Required |
 | `/dashboard/contact` | Contact | Required |
 | `/dashboard/blogs` | Blogs | Required |
+| `/dashboard/content` | Content (site content CMS) | Required |
 | `/dashboard/case-studies` | CaseStudies | Required |
 | `/dashboard/events` | Events | Required |
 | `*` | Navigate to `/` | — |
@@ -83,6 +90,7 @@ src/
 
 - **Auth**: Use `api/auth.ts` (`login`, `me`) and hooks `useLoginMutation`, `useMeQuery`.
 - **Other endpoints**: Call `request<T>(path, init)` from `lib/api.ts`. Path is relative to `VITE_API_URL` (e.g. `/api/users`). For new domains, add modules under `src/api/` and optional hooks in `src/hooks/`.
+- **Site content**: Dashboard → "Site content" lists all content keys. Edit a key to change value/type; saved via `PUT /api/admin/content/:key`. Keys must match frontend expectations (e.g. `home.hero.title`). Run backend `npm run seed:content` to add default keys if empty.
 
 ## Conventions
 
