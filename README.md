@@ -1,73 +1,91 @@
-# React + TypeScript + Vite
+# acousticsfx-admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Vite + React admin dashboard for AcousticsFX. Authenticates with the backend and provides dashboard UIs for users, categories, products, testimonials, contact, blogs, case studies, and events.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Build**: Vite 7, TypeScript
+- **UI**: React 19, React Router 7
+- **Data**: TanStack React Query 5
+- **No UI library**: Plain CSS (App.css); add as needed
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Command | Description |
+|--------|-------------|
+| `npm run dev` | Start Vite dev server |
+| `npm run build` | `tsc -b` then `vite build` |
+| `npm run preview` | Preview production build |
+| `npm run lint` | ESLint |
 
-## Expanding the ESLint configuration
+## Environment
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **VITE_API_URL**: Backend base URL (e.g. `http://localhost:8080`). Used by `src/lib/api.ts`. Default in code: `http://localhost:3001` if unset.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project layout
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── main.tsx              # Entry, React root
+├── App.tsx               # Router + AuthProvider, route definitions
+├── App.css
+├── api/
+│   └── auth.ts           # login(), me() — calls /api/auth/login, /api/auth/me
+├── lib/
+│   └── api.ts            # request<T>(), getToken(), setToken(), clearToken(), ApiError, base URL
+├── context/
+│   └── AuthContext.tsx   # token, isAuthenticated, setToken, logout; useAuth()
+├── hooks/
+│   ├── useLoginMutation.ts  # Login mutation, onSuccess sets token via AuthContext
+│   └── useMeQuery.ts        # Me query (enabled when token set), 5m staleTime
+├── components/
+│   ├── ProtectedRoute.tsx   # Redirects to / if not isAuthenticated; else <Outlet />
+│   └── DashboardLayout.tsx # Shell for dashboard pages
+└── pages/
+    ├── Login.tsx
+    ├── DashboardHome.tsx
+    ├── Users.tsx
+    ├── Categories.tsx
+    ├── Products.tsx
+    ├── Testimonials.tsx
+    ├── Contact.tsx
+    ├── Blogs.tsx
+    ├── CaseStudies.tsx
+    └── Events.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Routing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Path | Component | Auth |
+|------|-----------|------|
+| `/` | Login | Public |
+| `/dashboard` | ProtectedRoute → DashboardLayout | Required |
+| `/dashboard` (index) | DashboardHome | Required |
+| `/dashboard/users` | Users | Required |
+| `/dashboard/categories` | Categories | Required |
+| `/dashboard/products` | Products | Required |
+| `/dashboard/testimonials` | Testimonials | Required |
+| `/dashboard/contact` | Contact | Required |
+| `/dashboard/blogs` | Blogs | Required |
+| `/dashboard/case-studies` | CaseStudies | Required |
+| `/dashboard/events` | Events | Required |
+| `*` | Navigate to `/` | — |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Auth flow
+
+1. **Token storage**: localStorage key `acousticsfx-admin-token`; read/write via `getToken()` / `setToken()` / `clearToken()` in `lib/api.ts`.
+2. **AuthContext**: Holds `token`, `isAuthenticated`, `setToken`, `logout`; syncs token from storage (e.g. other tab). Wrap app in `AuthProvider`; use `useAuth()` in children.
+3. **Login**: User submits credentials → `useLoginMutation` calls `login()` from `api/auth.ts` → on success, `setToken(data.token)` and typically navigate to `/dashboard`.
+4. **Protected routes**: `ProtectedRoute` uses `useAuth().isAuthenticated`; if false, redirects to `/`. Dashboard routes are children of `ProtectedRoute`.
+5. **API calls**: `request()` in `lib/api.ts` adds `Authorization: Bearer <token>` when token exists; throws `ApiError` on non-OK response.
+
+## API usage
+
+- **Auth**: Use `api/auth.ts` (`login`, `me`) and hooks `useLoginMutation`, `useMeQuery`.
+- **Other endpoints**: Call `request<T>(path, init)` from `lib/api.ts`. Path is relative to `VITE_API_URL` (e.g. `/api/users`). For new domains, add modules under `src/api/` and optional hooks in `src/hooks/`.
+
+## Conventions
+
+- **New page**: Add component in `src/pages/`, add route in `App.tsx` under the `ProtectedRoute` → `DashboardLayout` branch.
+- **New API surface**: Add functions in `src/api/<domain>.ts` using `request()` from `lib/api.ts`; add React Query hooks in `src/hooks/` if needed.
+- **Auth**: Use `useAuth()` for token/logout; use `useMeQuery()` for current user when token is present. Handle 401 (e.g. logout and redirect) where appropriate.
