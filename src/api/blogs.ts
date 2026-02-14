@@ -5,6 +5,7 @@ export interface BlogItem {
   slug: string;
   title: string;
   excerpt?: string;
+  content?: string;
   heroImage: string;
   authorName: string;
   authorImage?: string;
@@ -26,6 +27,7 @@ export function createBlog(body: {
   slug: string;
   title: string;
   excerpt?: string;
+  content?: string;
   heroImage: string;
   authorName: string;
   authorImage?: string;
@@ -44,6 +46,7 @@ export function updateBlog(
     slug: string;
     title: string;
     excerpt?: string;
+    content?: string;
     heroImage: string;
     authorName: string;
     authorImage?: string;

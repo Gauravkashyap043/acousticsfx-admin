@@ -11,6 +11,7 @@ const navItems = [
   { to: '/dashboard/products', key: 'products', label: 'Products', end: false },
   { to: '/dashboard/testimonials', key: 'testimonials', label: 'Testimonials', end: false },
   { to: '/dashboard/contact', key: 'contact', label: 'Contact details', end: false },
+  { to: '/dashboard/newsletter', key: 'newsletter', label: 'Newsletter', end: false },
   { to: '/dashboard/blogs', key: 'blogs', label: 'Blogs & articles', end: false },
   { to: '/dashboard/content', key: 'content', label: 'Site content', end: false },
   { to: '/dashboard/case-studies', key: 'case-studies', label: 'Case studies', end: false },
@@ -53,10 +54,9 @@ export default function DashboardLayout() {
                 to={to}
                 end={end}
                 className={({ isActive }) =>
-                  `block py-2.5 px-6 text-[0.9375rem] no-underline transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 ${
-                    isActive
-                      ? 'text-secondary-100 font-medium bg-primary-500/10 border-r-2 border-primary-400'
-                      : 'text-secondary-300 hover:text-secondary-100 hover:bg-secondary-700/50'
+                  `block py-2.5 px-6 text-[0.9375rem] no-underline transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 ${isActive
+                    ? 'text-secondary-100 font-medium bg-primary-500/10 border-r-2 border-primary-400'
+                    : 'text-secondary-300 hover:text-secondary-100 hover:bg-secondary-700/50'
                   }`
                 }
               >

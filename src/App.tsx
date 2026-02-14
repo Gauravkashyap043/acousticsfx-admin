@@ -12,6 +12,7 @@ import Categories from './pages/Categories'
 import Products from './pages/Products'
 import Testimonials from './pages/Testimonials'
 import Contact from './pages/Contact'
+import Newsletter from './pages/Newsletter'
 import Blogs from './pages/Blogs'
 import Content from './pages/Content'
 import CaseStudies from './pages/CaseStudies'
@@ -35,6 +36,9 @@ function App() {
               <Route path="products" element={<Products />} />
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="contact" element={<Contact />} />
+              <Route element={<RequireTab tabKey="newsletter" />}>
+                <Route path="newsletter" element={<Newsletter />} />
+              </Route>
               <Route path="blogs" element={<Blogs />} />
               <Route path="content" element={<Content />} />
               <Route path="case-studies" element={<CaseStudies />} />

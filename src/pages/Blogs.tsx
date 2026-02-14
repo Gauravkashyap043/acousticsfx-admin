@@ -18,9 +18,11 @@ export default function Blogs() {
     slug: '',
     title: '',
     excerpt: '',
+    content: '',
     heroImage: '',
     authorName: '',
     authorImage: '',
+    tags: '',
     publishedAt: '',
   });
 
@@ -29,7 +31,7 @@ export default function Blogs() {
   const openAdd = () => {
     setAdding(true);
     setEditing(null);
-    setForm({ slug: '', title: '', excerpt: '', heroImage: '', authorName: '', authorImage: '', publishedAt: '' });
+    setForm({ slug: '', title: '', excerpt: '', content: '', heroImage: '', authorName: '', authorImage: '', tags: '', publishedAt: '' });
     setSaveError(null);
   };
 
@@ -40,9 +42,11 @@ export default function Blogs() {
       slug: item.slug,
       title: item.title,
       excerpt: item.excerpt ?? '',
+      content: item.content ?? '',
       heroImage: item.heroImage ?? '',
       authorName: item.authorName ?? '',
       authorImage: item.authorImage ?? '',
+      tags: Array.isArray(item.tags) ? item.tags.join(', ') : '',
       publishedAt: item.publishedAt ? item.publishedAt.slice(0, 10) : '',
     });
     setSaveError(null);
@@ -59,13 +63,16 @@ export default function Blogs() {
     setSaving(true);
     setSaveError(null);
     try {
+      const tags = form.tags.trim() ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined;
       const body = {
         slug: form.slug.trim(),
         title: form.title.trim(),
         excerpt: form.excerpt.trim() || undefined,
+        content: form.content.trim() || undefined,
         heroImage: form.heroImage.trim(),
         authorName: form.authorName.trim(),
         authorImage: form.authorImage.trim() || undefined,
+        tags,
         publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
       };
       if (editing) {
@@ -144,6 +151,16 @@ export default function Blogs() {
                 />
               </label>
               <label>
+                <span className={labelClass}>Content (HTML)</span>
+                <textarea
+                  value={form.content}
+                  onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+                  rows={6}
+                  className={`${inputClass} resize-y font-mono text-sm`}
+                  placeholder="<p>...</p>"
+                />
+              </label>
+              <label>
                 <span className={labelClass}>Hero image URL</span>
                 <input
                   type="text"
@@ -168,6 +185,16 @@ export default function Blogs() {
                   value={form.authorImage}
                   onChange={(e) => setForm((f) => ({ ...f, authorImage: e.target.value }))}
                   className={inputClass}
+                />
+              </label>
+              <label>
+                <span className={labelClass}>Tags (comma-separated)</span>
+                <input
+                  type="text"
+                  value={form.tags}
+                  onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
+                  className={inputClass}
+                  placeholder="Insights, Strategy"
                 />
               </label>
               <label>

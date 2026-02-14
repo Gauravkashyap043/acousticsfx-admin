@@ -1,4 +1,4 @@
-import { useContactSubmissionsList } from '../hooks/useContactSubmissionsList';
+import { useNewsletterSubscriptionsList } from '../hooks/useNewsletterSubscriptionsList';
 
 function formatDate(iso: string) {
   try {
@@ -8,31 +8,27 @@ function formatDate(iso: string) {
   }
 }
 
-export default function Contact() {
-  const { data, isLoading, isError, error } = useContactSubmissionsList();
+export default function Newsletter() {
+  const { data, isLoading, isError, error } = useNewsletterSubscriptionsList();
 
   return (
     <div className="min-h-screen flex flex-col text-secondary-100">
       <header className="py-4 px-6 border-b border-secondary-600">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Contact</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight">Newsletter</h1>
       </header>
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
-        <section className="mb-8">
-          <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-            Edit contact information: address, phone, email, and social links (coming soon).
-          </p>
-        </section>
-
         <section>
-          <h2 className="text-lg font-medium text-secondary-200 mb-4">Form submissions</h2>
+          <p className="m-0 mb-4 text-[0.9375rem] text-secondary-400">
+            Emails submitted via the newsletter signup on the public site.
+          </p>
           {isLoading && <p className="text-secondary-400 text-sm">Loading…</p>}
           {isError && (
             <p className="text-red-400 text-sm">
-              {error instanceof Error ? error.message : 'Failed to load submissions'}
+              {error instanceof Error ? error.message : 'Failed to load subscriptions'}
             </p>
           )}
           {data?.items && data.items.length === 0 && (
-            <p className="text-secondary-400 text-sm">No submissions yet.</p>
+            <p className="text-secondary-400 text-sm">No subscriptions yet.</p>
           )}
           {data?.items && data.items.length > 0 && (
             <div className="overflow-x-auto border border-secondary-600 rounded-lg">
@@ -40,11 +36,7 @@ export default function Contact() {
                 <thead className="bg-secondary-800/80 text-secondary-300">
                   <tr>
                     <th className="px-4 py-3 font-medium">Date</th>
-                    <th className="px-4 py-3 font-medium">Name</th>
                     <th className="px-4 py-3 font-medium">Email</th>
-                    <th className="px-4 py-3 font-medium">Phone</th>
-                    <th className="px-4 py-3 font-medium">Subject</th>
-                    <th className="px-4 py-3 font-medium">Message</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary-700">
@@ -53,16 +45,10 @@ export default function Contact() {
                       <td className="px-4 py-3 text-secondary-400 whitespace-nowrap">
                         {formatDate(row.createdAt)}
                       </td>
-                      <td className="px-4 py-3">{row.name}</td>
                       <td className="px-4 py-3">
                         <a href={`mailto:${row.email}`} className="text-primary-400 hover:underline">
                           {row.email}
                         </a>
-                      </td>
-                      <td className="px-4 py-3 text-secondary-400">{row.phone ?? '—'}</td>
-                      <td className="px-4 py-3">{row.subject}</td>
-                      <td className="px-4 py-3 max-w-xs truncate" title={row.message}>
-                        {row.message}
                       </td>
                     </tr>
                   ))}

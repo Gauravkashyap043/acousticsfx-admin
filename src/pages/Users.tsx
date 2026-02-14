@@ -272,7 +272,7 @@ export default function Users() {
   const handleDeleteConfirm = (admin: AdminItem) => {
     deleteMutation.mutate(admin.id, {
       onSettled: () => setDeleting(null),
-      onError: () => {},
+      onError: () => { },
     });
   };
 
