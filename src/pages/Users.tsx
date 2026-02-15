@@ -149,14 +149,16 @@ function EditAdminModal({
   admin,
   tabKeys,
   currentAdminId,
+  isOnlySuperAdmin,
   onSave,
   onClose,
 }: {
   admin: AdminItem;
   tabKeys: string[];
+  currentAdminId: string | null;
+  isOnlySuperAdmin: boolean;
   onSave: () => void;
   onClose: () => void;
-  currentAdminId: string | null;
 }) {
   const isSelf = currentAdminId === admin.id;
   const [role, setRole] = useState(admin.role);
@@ -164,6 +166,7 @@ function EditAdminModal({
     admin.role === 'super_admin' ? [...tabKeys] : admin.visibleTabs ?? tabKeys.filter((k) => k !== 'users')
   );
   const update = useUpdateAdminMutation();
+  const cannotDemoteSuperAdmin = admin.role === 'super_admin' && isOnlySuperAdmin;
 
   const toggleTab = (key: string) => {
     setVisibleTabs((prev) =>
@@ -203,6 +206,11 @@ function EditAdminModal({
             You are editing your own account. Demoting yourself may lock you out.
           </p>
         )}
+        {cannotDemoteSuperAdmin && (
+          <p className="m-0 mb-3 text-sm text-amber-400">
+            At least one super_admin must always exist. Role cannot be changed.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <label>
             <span className={labelClass}>Role</span>
@@ -210,7 +218,8 @@ function EditAdminModal({
               value={role}
               onChange={(e) => setRole(e.target.value)}
               className={inputClass}
-              disabled={isSelf && admin.role === 'super_admin'}
+              disabled={cannotDemoteSuperAdmin}
+              title={cannotDemoteSuperAdmin ? 'At least one super_admin must always exist' : undefined}
             >
               {ROLES.map((r) => (
                 <option key={r} value={r}>
@@ -303,6 +312,9 @@ export default function Users() {
   }
 
   const { admins, tabKeys } = data;
+  const superAdminCount = admins.filter((a) => a.role === 'super_admin').length;
+  const isOnlySuperAdmin = (admin: AdminItem) =>
+    admin.role === 'super_admin' && superAdminCount === 1;
 
   return (
     <div className="min-h-screen flex flex-col text-secondary-100">
@@ -356,13 +368,15 @@ export default function Users() {
                       >
                         Edit
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleting(admin)}
-                        className="py-1.5 px-3 text-sm text-red-400 hover:bg-red-500/10 rounded"
-                      >
-                        Delete
-                      </button>
+                      {!isOnlySuperAdmin(admin) && (
+                        <button
+                          type="button"
+                          onClick={() => setDeleting(admin)}
+                          className="py-1.5 px-3 text-sm text-red-400 hover:bg-red-500/10 rounded"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -377,6 +391,7 @@ export default function Users() {
           admin={editing}
           tabKeys={tabKeys}
           currentAdminId={currentAdminId}
+          isOnlySuperAdmin={superAdminCount === 1}
           onSave={() => setEditing(null)}
           onClose={() => setEditing(null)}
         />
