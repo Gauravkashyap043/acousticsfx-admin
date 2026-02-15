@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useBlogsList } from '../hooks/useBlogsList';
 import { createBlog, updateBlog, deleteBlog, type BlogItem } from '../api/blogs';
 import { useQueryClient } from '@tanstack/react-query';
+import { BlogRichEditor } from '../components/BlogRichEditor';
+import { ImageUploadField } from '../components/ImageUploadField';
 
 const inputClass =
   'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
@@ -120,15 +122,17 @@ export default function Blogs() {
             <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
               {editing ? 'Edit blog' : 'Add blog'}
             </h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-[560px]">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-[640px]">
               <label>
-                <span className={labelClass}>Slug</span>
+                <span className={labelClass}>URL slug</span>
+                <p className="text-xs text-secondary-500 mb-1">Used in the article link (e.g. my-article-name). Use lowercase letters, numbers and hyphens only.</p>
                 <input
                   type="text"
                   value={form.slug}
-                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') }))}
                   required
                   className={inputClass}
+                  placeholder="my-article-name"
                 />
               </label>
               <label>
@@ -139,36 +143,34 @@ export default function Blogs() {
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                   required
                   className={inputClass}
+                  placeholder="Your blog title"
                 />
               </label>
               <label>
-                <span className={labelClass}>Excerpt</span>
+                <span className={labelClass}>Short summary</span>
+                <p className="text-xs text-secondary-500 mb-1">Shown in blog listings and previews. One or two sentences.</p>
                 <textarea
                   value={form.excerpt}
                   onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))}
                   rows={2}
                   className={`${inputClass} resize-y`}
+                  placeholder="A brief description of the article..."
                 />
               </label>
-              <label>
-                <span className={labelClass}>Content (HTML)</span>
-                <textarea
-                  value={form.content}
-                  onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                  rows={6}
-                  className={`${inputClass} resize-y font-mono text-sm`}
-                  placeholder="<p>...</p>"
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Hero image URL</span>
-                <input
-                  type="text"
-                  value={form.heroImage}
-                  onChange={(e) => setForm((f) => ({ ...f, heroImage: e.target.value }))}
-                  className={inputClass}
-                />
-              </label>
+
+              <BlogRichEditor
+                key={editing?._id ?? 'new'}
+                value={form.content}
+                onChange={(html) => setForm((f) => ({ ...f, content: html }))}
+              />
+
+              <ImageUploadField
+                label="Cover image"
+                hint="Main image shown at the top of the article. Upload a file or paste a URL."
+                value={form.heroImage}
+                onChange={(url) => setForm((f) => ({ ...f, heroImage: url }))}
+              />
+
               <label>
                 <span className={labelClass}>Author name</span>
                 <input
@@ -176,19 +178,20 @@ export default function Blogs() {
                   value={form.authorName}
                   onChange={(e) => setForm((f) => ({ ...f, authorName: e.target.value }))}
                   className={inputClass}
+                  placeholder="e.g. Jane Smith"
                 />
               </label>
+
+              <ImageUploadField
+                label="Author photo (optional)"
+                hint="Small picture shown next to the author name."
+                value={form.authorImage}
+                onChange={(url) => setForm((f) => ({ ...f, authorImage: url }))}
+              />
+
               <label>
-                <span className={labelClass}>Author image URL (optional)</span>
-                <input
-                  type="text"
-                  value={form.authorImage}
-                  onChange={(e) => setForm((f) => ({ ...f, authorImage: e.target.value }))}
-                  className={inputClass}
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Tags (comma-separated)</span>
+                <span className={labelClass}>Tags</span>
+                <p className="text-xs text-secondary-500 mb-1">Comma-separated (e.g. Insights, Strategy, Acoustics).</p>
                 <input
                   type="text"
                   value={form.tags}
@@ -198,7 +201,7 @@ export default function Blogs() {
                 />
               </label>
               <label>
-                <span className={labelClass}>Published date (optional)</span>
+                <span className={labelClass}>Publish date (optional)</span>
                 <input
                   type="date"
                   value={form.publishedAt}
