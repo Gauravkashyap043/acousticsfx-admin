@@ -15,6 +15,7 @@ export interface ProductItem {
   image: string;
   heroImage?: string;
   subProducts: SubProduct[];
+  categorySlug?: string;
   order: number;
   createdAt?: string;
   updatedAt?: string;
@@ -35,6 +36,7 @@ export function createProduct(body: {
   image: string;
   heroImage?: string;
   subProducts: SubProduct[];
+  categorySlug?: string;
   order?: number;
 }): Promise<ProductItem> {
   return request<ProductItem>('/api/admin/products', {
@@ -52,6 +54,7 @@ export function updateProduct(
     image: string;
     heroImage?: string;
     subProducts: SubProduct[];
+    categorySlug?: string;
     order?: number;
   }
 ): Promise<ProductItem> {

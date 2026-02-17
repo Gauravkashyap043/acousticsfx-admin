@@ -1,5 +1,6 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import { useMeQuery } from '../hooks/useMeQuery';
+import PageLoader from './PageLoader';
 
 interface RequireTabProps {
   tabKey: string;
@@ -12,8 +13,8 @@ export default function RequireTab({ tabKey }: RequireTabProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary-950 text-secondary-400">
-        Loading…
+      <div className="min-h-screen flex items-center justify-center">
+        <PageLoader />
       </div>
     );
   }

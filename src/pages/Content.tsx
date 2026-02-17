@@ -2,14 +2,10 @@ import { useState } from 'react';
 import { useContentList } from '../hooks/useContentList';
 import { useUpdateContentMutation } from '../hooks/useUpdateContentMutation';
 import type { ContentItem } from '../api/content';
-
-const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
-const btnPrimary =
-  'py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60';
-const btnSecondary =
-  'py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700';
+import { inputClass, labelClass, primaryBtnClass, cancelBtnClass } from '../lib/styles';
+import { ImageUploadField } from '../components/ImageUploadField';
+import PageShell from '../components/PageShell';
+import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
 function truncate(s: string, max: number) {
   if (s.length <= max) return s;
@@ -49,26 +45,31 @@ export default function Content() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Site content</h1>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+    <PageShell title="Site content">
         {editing && (
           <section className="mb-6">
-            <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
+            <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
               Edit: {editing.key}
             </h2>
             <div className="flex flex-col gap-3 max-w-[600px]">
-              <label>
-                <span className={labelClass}>Value</span>
-                <textarea
+              {formType === 'image' ? (
+                <ImageUploadField
+                  label="Value"
+                  hint="Upload via ImageKit or paste URL."
                   value={formValue}
-                  onChange={(e) => setFormValue(e.target.value)}
-                  rows={formType === 'text' ? 4 : 1}
-                  className={`${inputClass} resize-y`}
+                  onChange={setFormValue}
                 />
-              </label>
+              ) : (
+                <label>
+                  <span className={labelClass}>Value</span>
+                  <textarea
+                    value={formValue}
+                    onChange={(e) => setFormValue(e.target.value)}
+                    rows={4}
+                    className={`${inputClass} resize-y`}
+                  />
+                </label>
+              )}
               <label>
                 <span className={labelClass}>Type</span>
                 <select
@@ -85,16 +86,16 @@ export default function Content() {
                   type="button"
                   onClick={handleSave}
                   disabled={updateMutation.isPending}
-                  className={btnPrimary}
+                  className={primaryBtnClass}
                 >
                   {updateMutation.isPending ? 'Saving…' : 'Save'}
                 </button>
-                <button type="button" onClick={cancelEdit} className={btnSecondary}>
+                <button type="button" onClick={cancelEdit} className={cancelBtnClass}>
                   Cancel
                 </button>
               </div>
               {updateMutation.isError && (
-                <p className="m-0 text-sm text-red-400">
+                <p className="m-0 text-sm text-red-600">
                   {(updateMutation.error as Error).message}
                 </p>
               )}
@@ -103,24 +104,16 @@ export default function Content() {
         )}
 
         <section className="mb-8">
-          <h2 className="m-0 mb-4 text-base font-semibold text-secondary-400 uppercase tracking-wider">
+          <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             Content keys
           </h2>
-          {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-              Loading…
-            </p>
-          )}
-          {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-              {error instanceof Error ? error.message : 'Failed to load content'}
-            </p>
-          )}
+          {isLoading && <InlineLoader />}
+          {isError && <ErrorState message={error instanceof Error ? error.message : 'Failed to load content'} />}
           {data && (
-            <div className="overflow-x-auto rounded-xl border border-secondary-600">
+            <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-secondary-600">
+                  <tr className="border-b border-gray-300">
                     <th className="py-2 px-3">Key</th>
                     <th className="py-2 px-3">Value (preview)</th>
                     <th className="py-2 px-3">Type</th>
@@ -130,10 +123,14 @@ export default function Content() {
                 </thead>
                 <tbody>
                   {data.items.map((item) => (
-                    <tr key={item.key} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
+                    <tr key={item.key} className="border-b border-gray-200 hover:bg-blue-50/60 transition-colors">
                       <td className="py-2 px-3 font-mono text-sm">{item.key}</td>
-                      <td className="py-2 px-3 max-w-[300px] truncate">
-                        {truncate(item.value, 60)}
+                      <td className="py-2 px-3 max-w-[300px]">
+                        {(item.type === 'image') && item.value ? (
+                          <img src={item.value} alt={item.key} className="h-10 w-auto max-w-[120px] rounded object-cover" />
+                        ) : (
+                          <span className="truncate block">{truncate(item.value, 60)}</span>
+                        )}
                       </td>
                       <td className="py-2 px-3">{item.type ?? 'text'}</td>
                       <td className="py-2 px-3 text-sm">
@@ -157,12 +154,9 @@ export default function Content() {
             </div>
           )}
           {data && data.items.length === 0 && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-              No content yet. Run backend seed:content to add defaults.
-            </p>
+            <EmptyState message="No content yet. Run backend seed:content to add defaults." />
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

@@ -7,10 +7,10 @@ import {
   type CaseStudyItem,
 } from '../api/caseStudies';
 import { useQueryClient } from '@tanstack/react-query';
-
-const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import { ImageUploadField } from '../components/ImageUploadField';
+import PageShell from '../components/PageShell';
+import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
 export default function CaseStudies() {
   const queryClient = useQueryClient();
@@ -87,23 +87,23 @@ export default function CaseStudies() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Case studies</h1>
-        {!adding && !editing && (
+    <PageShell
+      title="Case studies"
+      action={
+        !adding && !editing ? (
           <button
             type="button"
             onClick={openAdd}
-            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
+            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
           >
             Add case study
           </button>
-        )}
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+        ) : undefined
+      }
+    >
         {(adding || editing) && (
           <section className="mb-6">
-            <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
+            <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
               {editing ? 'Edit case study' : 'Add case study'}
             </h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-[560px]">
@@ -136,15 +136,12 @@ export default function CaseStudies() {
                   className={`${inputClass} resize-y`}
                 />
               </label>
-              <label>
-                <span className={labelClass}>Image URL</span>
-                <input
-                  type="text"
-                  value={form.image}
-                  onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                  className={inputClass}
-                />
-              </label>
+              <ImageUploadField
+                label="Image"
+                hint="Upload via ImageKit or paste URL."
+                value={form.image}
+                onChange={(url) => setForm((f) => ({ ...f, image: url }))}
+              />
               <label>
                 <span className={labelClass}>Order</span>
                 <input
@@ -158,42 +155,35 @@ export default function CaseStudies() {
                 <button
                   type="submit"
                   disabled={saving || !form.slug.trim() || !form.title.trim()}
-                  className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60"
+                  className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
                 >
                   {saving ? 'Saving…' : 'Save'}
                 </button>
                 <button
                   type="button"
                   onClick={closeForm}
-                  className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700"
+                  className={cancelBtnClass}
                 >
                   Cancel
                 </button>
               </div>
-              {saveError && <p className="m-0 text-sm text-red-400">{saveError}</p>}
+              {saveError && <p className="m-0 text-sm text-red-600">{saveError}</p>}
             </form>
           </section>
         )}
 
         <section className="mb-8">
-          <h2 className="m-0 mb-4 text-base font-semibold text-secondary-400 uppercase tracking-wider">
+          <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             All case studies
           </h2>
-          {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-              Loading…
-            </p>
-          )}
-          {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-              {error instanceof Error ? error.message : 'Failed to load case studies'}
-            </p>
-          )}
+          {isLoading && <InlineLoader />}
+          {isError && <ErrorState message={error instanceof Error ? error.message : 'Failed to load case studies'} />}
           {data && (
-            <div className="overflow-x-auto rounded-xl border border-secondary-600">
+            <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-secondary-600">
+                  <tr className="border-b border-gray-300">
+                    <th className="py-2 px-3">Image</th>
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Title</th>
                     <th className="py-2 px-3">Order</th>
@@ -202,7 +192,14 @@ export default function CaseStudies() {
                 </thead>
                 <tbody>
                   {data.items.map((item) => (
-                    <tr key={item._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
+                    <tr key={item._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
+                      <td className="py-2 px-3">
+                        {item.image ? (
+                          <img src={item.image} alt={item.title} className="h-10 w-auto max-w-[80px] rounded object-cover" />
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.title}</td>
                       <td className="py-2 px-3">{item.order}</td>
@@ -217,7 +214,7 @@ export default function CaseStudies() {
                         <button
                           type="button"
                           onClick={() => handleDelete(item._id)}
-                          className="py-1 px-2 text-sm text-red-400 hover:underline"
+                          className="py-1 px-2 text-sm text-red-600 hover:underline"
                         >
                           Delete
                         </button>
@@ -229,12 +226,9 @@ export default function CaseStudies() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
-              No case studies yet. Add one to get started.
-            </p>
+            <EmptyState message="No case studies yet. Add one to get started." />
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

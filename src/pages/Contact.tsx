@@ -1,4 +1,6 @@
 import { useContactSubmissionsList } from '../hooks/useContactSubmissionsList';
+import PageShell from '../components/PageShell';
+import { CompactLoader } from '../components/EmptyState';
 
 function formatDate(iso: string) {
   try {
@@ -12,32 +14,28 @@ export default function Contact() {
   const { data, isLoading, isError, error } = useContactSubmissionsList();
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Contact</h1>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+    <PageShell title="Contact">
         <section className="mb-8">
-          <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+          <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
             Edit contact information: address, phone, email, and social links (coming soon).
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-medium text-secondary-200 mb-4">Form submissions</h2>
-          {isLoading && <p className="text-secondary-400 text-sm">Loading…</p>}
+          <h2 className="text-lg font-medium text-gray-800 mb-4">Form submissions</h2>
+          {isLoading && <CompactLoader />}
           {isError && (
-            <p className="text-red-400 text-sm">
+            <p className="text-red-600 text-sm">
               {error instanceof Error ? error.message : 'Failed to load submissions'}
             </p>
           )}
           {data?.items && data.items.length === 0 && (
-            <p className="text-secondary-400 text-sm">No submissions yet.</p>
+            <p className="text-gray-500 text-sm">No submissions yet.</p>
           )}
           {data?.items && data.items.length > 0 && (
-            <div className="overflow-x-auto border border-secondary-600 rounded-lg">
+            <div className="overflow-x-auto border border-gray-300 rounded-lg">
               <table className="w-full text-sm text-left">
-                <thead className="bg-secondary-800/80 text-secondary-300">
+                <thead className="bg-white text-gray-600">
                   <tr>
                     <th className="px-4 py-3 font-medium">Date</th>
                     <th className="px-4 py-3 font-medium">Name</th>
@@ -47,10 +45,10 @@ export default function Contact() {
                     <th className="px-4 py-3 font-medium">Message</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-secondary-700">
+                <tbody className="divide-y divide-gray-200">
                   {data.items.map((row) => (
-                    <tr key={row._id} className="bg-secondary-900/50 hover:bg-secondary-800/50">
-                      <td className="px-4 py-3 text-secondary-400 whitespace-nowrap">
+                    <tr key={row._id} className="bg-gray-50/50 hover:bg-blue-50/60">
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                         {formatDate(row.createdAt)}
                       </td>
                       <td className="px-4 py-3">{row.name}</td>
@@ -59,7 +57,7 @@ export default function Contact() {
                           {row.email}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-secondary-400">{row.phone ?? '—'}</td>
+                      <td className="px-4 py-3 text-gray-500">{row.phone ?? '—'}</td>
                       <td className="px-4 py-3">{row.subject}</td>
                       <td className="px-4 py-3 max-w-xs truncate" title={row.message}>
                         {row.message}
@@ -71,7 +69,6 @@ export default function Contact() {
             </div>
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

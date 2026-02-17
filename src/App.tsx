@@ -17,6 +17,11 @@ import Blogs from './pages/Blogs'
 import Content from './pages/Content'
 import CaseStudies from './pages/CaseStudies'
 import Events from './pages/Events'
+import Clients from './pages/Clients'
+import TrustedPartners from './pages/TrustedPartners'
+import FooterLinks from './pages/FooterLinks'
+import Locations from './pages/Locations'
+import Faqs from './pages/Faqs'
 
 function App() {
   return (
@@ -32,8 +37,12 @@ function App() {
               <Route element={<RequireTab tabKey="users" />}>
                 <Route path="users" element={<Users />} />
               </Route>
-              <Route path="categories" element={<Categories />} />
-              <Route path="products" element={<Products />} />
+              <Route element={<RequireTab tabKey="categories" />}>
+                <Route path="categories" element={<Categories />} />
+              </Route>
+              <Route element={<RequireTab tabKey="products" />}>
+                <Route path="products" element={<Products />} />
+              </Route>
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="contact" element={<Contact />} />
               <Route element={<RequireTab tabKey="newsletter" />}>
@@ -43,6 +52,11 @@ function App() {
               <Route path="content" element={<Content />} />
               <Route path="case-studies" element={<CaseStudies />} />
               <Route path="events" element={<Events />} />
+              <Route path="clients" element={<Clients />} />
+              <Route path="trusted-partners" element={<TrustedPartners />} />
+              <Route path="footer-links" element={<FooterLinks />} />
+              <Route path="locations" element={<Locations />} />
+              <Route path="faqs" element={<Faqs />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

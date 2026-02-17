@@ -7,9 +7,14 @@ export interface BlogItem {
   excerpt?: string;
   content?: string;
   heroImage: string;
+  authorId?: string;
   authorName: string;
+  authorEmail?: string;
   authorImage?: string;
+  metaDescription?: string;
   tags?: string[];
+  isPublished?: boolean;
+  views?: number;
   publishedAt?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -29,9 +34,14 @@ export function createBlog(body: {
   excerpt?: string;
   content?: string;
   heroImage: string;
+  authorId?: string;
   authorName: string;
+  authorEmail?: string;
   authorImage?: string;
+  metaDescription?: string;
   tags?: string[];
+  isPublished?: boolean;
+  views?: number;
   publishedAt?: string;
 }): Promise<BlogItem> {
   return request<BlogItem>('/api/admin/blogs', {
@@ -48,9 +58,14 @@ export function updateBlog(
     excerpt?: string;
     content?: string;
     heroImage: string;
+    authorId?: string;
     authorName: string;
+    authorEmail?: string;
     authorImage?: string;
+    metaDescription?: string;
     tags?: string[];
+    isPublished?: boolean;
+    views?: number;
     publishedAt?: string;
   }
 ): Promise<BlogItem> {
