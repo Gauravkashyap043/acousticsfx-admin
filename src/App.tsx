@@ -32,8 +32,12 @@ function App() {
               <Route element={<RequireTab tabKey="users" />}>
                 <Route path="users" element={<Users />} />
               </Route>
-              <Route path="categories" element={<Categories />} />
-              <Route path="products" element={<Products />} />
+              <Route element={<RequireTab tabKey="categories" />}>
+                <Route path="categories" element={<Categories />} />
+              </Route>
+              <Route element={<RequireTab tabKey="products" />}>
+                <Route path="products" element={<Products />} />
+              </Route>
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="contact" element={<Contact />} />
               <Route element={<RequireTab tabKey="newsletter" />}>

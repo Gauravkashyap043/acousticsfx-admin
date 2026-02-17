@@ -49,7 +49,8 @@ export async function request<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const message = (body as { error?: string }).error ?? res.statusText;
+    const raw = (body as { error?: unknown }).error ?? res.statusText;
+    const message = typeof raw === 'string' ? raw : res.statusText;
     throw new ApiError(message, res.status);
   }
 

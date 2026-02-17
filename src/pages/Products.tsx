@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useProductsList } from '../hooks/useProductsList';
+import { useCategoriesList } from '../hooks/useCategoriesList';
 import {
   createProduct,
   updateProduct,
@@ -8,6 +9,10 @@ import {
   type SubProduct,
 } from '../api/products';
 import { useQueryClient } from '@tanstack/react-query';
+import type { CategoryItem } from '../api/categories';
+import Modal from '../components/Modal';
+import { ImageUploadField } from '../components/ImageUploadField';
+import { uploadImage } from '../api/upload';
 
 const emptySubProduct: SubProduct = {
   slug: '',
@@ -18,12 +23,15 @@ const emptySubProduct: SubProduct = {
 
 function ProductForm({
   product,
+  categories,
   onSave,
   onCancel,
   isSaving,
   error,
+  hideTitle,
 }: {
   product: ProductItem | null;
+  categories: CategoryItem[];
   onSave: (body: {
     slug: string;
     title: string;
@@ -31,21 +39,27 @@ function ProductForm({
     image: string;
     heroImage?: string;
     subProducts: SubProduct[];
+    categorySlug?: string;
     order: number;
   }) => void;
   onCancel: () => void;
   isSaving: boolean;
   error: string | null;
+  hideTitle?: boolean;
 }) {
   const [slug, setSlug] = useState(product?.slug ?? '');
   const [title, setTitle] = useState(product?.title ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [image, setImage] = useState(product?.image ?? '');
   const [heroImage, setHeroImage] = useState(product?.heroImage ?? '');
+  const [categorySlug, setCategorySlug] = useState(product?.categorySlug ?? '');
   const [order, setOrder] = useState(product?.order ?? 0);
   const [subProducts, setSubProducts] = useState<SubProduct[]>(
     product?.subProducts?.length ? [...product.subProducts] : []
   );
+  const subProductFileRef = useRef<HTMLInputElement>(null);
+  const subProductUploadRowRef = useRef<number | null>(null);
+  const [subProductUploading, setSubProductUploading] = useState(false);
 
   const addSub = () => {
     setSubProducts((prev) => [...prev, { ...emptySubProduct }]);
@@ -63,6 +77,27 @@ function ProductForm({
     setSubProducts((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleSubProductFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    const idx = subProductUploadRowRef.current;
+    subProductUploadRowRef.current = null;
+    if (!file || idx == null) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+      return;
+    }
+    setSubProductUploading(true);
+    try {
+      const { url } = await uploadImage(file);
+      updateSub(idx, 'image', url);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setSubProductUploading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
@@ -72,6 +107,7 @@ function ProductForm({
       image: image.trim(),
       heroImage: heroImage.trim() || undefined,
       subProducts: subProducts.filter((s) => s.slug.trim()),
+      categorySlug: categorySlug.trim() || undefined,
       order,
     });
   };
@@ -81,11 +117,13 @@ function ProductForm({
   const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
 
   return (
-    <section className="mb-6">
-      <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
-        {product ? 'Edit product' : 'Add product'}
-      </h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-[640px]">
+    <section className={hideTitle ? undefined : 'mb-6'}>
+      {!hideTitle && (
+        <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
+          {product ? 'Edit product' : 'Add product'}
+        </h2>
+      )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <label>
           <span className={labelClass}>Slug</span>
           <input
@@ -116,24 +154,35 @@ function ProductForm({
             className={`${inputClass} resize-y`}
           />
         </label>
+        <ImageUploadField
+          label="Image"
+          hint="Upload via ImageKit or paste URL."
+          value={image}
+          onChange={setImage}
+        />
+        <ImageUploadField
+          label="Hero image (optional)"
+          hint="Upload via ImageKit or paste URL."
+          value={heroImage}
+          onChange={setHeroImage}
+        />
         <label>
-          <span className={labelClass}>Image URL</span>
-          <input
-            type="text"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            placeholder="/assets/product/..."
+          <span className={labelClass}>Category</span>
+          <select
+            value={categorySlug}
+            onChange={(e) => setCategorySlug(e.target.value)}
             className={inputClass}
-          />
-        </label>
-        <label>
-          <span className={labelClass}>Hero image URL (optional)</span>
-          <input
-            type="text"
-            value={heroImage}
-            onChange={(e) => setHeroImage(e.target.value)}
-            className={inputClass}
-          />
+          >
+            <option value="">— None —</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c.slug}>
+                {c.name} ({c.slug})
+              </option>
+            ))}
+          </select>
+          <p className="m-0 mt-1 text-xs text-secondary-400">
+            Assigns product to a category for /products/{categorySlug || '…'} pages.
+          </p>
         </label>
         <label>
           <span className={labelClass}>Order</span>
@@ -155,10 +204,17 @@ function ProductForm({
               Add row
             </button>
           </div>
+          <input
+            ref={subProductFileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={handleSubProductFile}
+          />
           {subProducts.map((sub, i) => (
             <div
               key={i}
-              className="border border-secondary-600 p-2 mb-2 grid grid-cols-[1fr_1fr_2fr_1fr_auto] gap-2 items-center rounded-lg"
+              className="border border-secondary-600 p-2 mb-2 grid grid-cols-[1fr_1fr_2fr_auto_auto] gap-2 items-center rounded-lg"
             >
               <input
                 placeholder="slug"
@@ -178,16 +234,26 @@ function ProductForm({
                 onChange={(e) => updateSub(i, 'description', e.target.value)}
                 className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100"
               />
-              <input
-                placeholder="image URL"
-                value={sub.image}
-                onChange={(e) => updateSub(i, 'image', e.target.value)}
-                className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100"
-              />
+              <div className="flex gap-1 items-center flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => { subProductUploadRowRef.current = i; subProductFileRef.current?.click(); }}
+                  disabled={subProductUploading}
+                  className="py-1 px-2 text-sm font-medium text-primary-400 hover:underline cursor-pointer disabled:opacity-50"
+                >
+                  {subProductUploading ? 'Uploading…' : 'Upload'}
+                </button>
+                <input
+                  placeholder="image URL"
+                  value={sub.image}
+                  onChange={(e) => updateSub(i, 'image', e.target.value)}
+                  className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100 flex-1 min-w-0"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => removeSub(i)}
-                className="py-1 px-2 text-sm text-red-400 hover:underline"
+                className="py-1 px-2 text-sm text-red-400 hover:underline cursor-pointer"
               >
                 Remove
               </button>
@@ -219,6 +285,7 @@ function ProductForm({
 export default function Products() {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useProductsList();
+  const { data: categoriesData } = useCategoriesList();
   const [editing, setEditing] = useState<ProductItem | null>(null);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -270,35 +337,49 @@ export default function Products() {
     <div className="min-h-screen flex flex-col text-secondary-100">
       <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Products</h1>
-        {!adding && !editing && (
-          <button
-            type="button"
-            onClick={() => setAdding(true)}
-            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
-          >
-            Add product
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500"
+        >
+          Add product
+        </button>
       </header>
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
-        {adding && (
+        <Modal
+          open={adding}
+          onClose={() => { setAdding(false); setSaveError(null); }}
+          title="Add product"
+          maxWidth="max-w-2xl"
+        >
           <ProductForm
             product={null}
+            categories={categoriesData?.items ?? []}
             onSave={handleCreate}
             onCancel={() => { setAdding(false); setSaveError(null); }}
             isSaving={saving}
             error={saveError}
+            hideTitle
           />
-        )}
-        {editing && (
-          <ProductForm
-            product={editing}
-            onSave={handleUpdate}
-            onCancel={() => { setEditing(null); setSaveError(null); }}
-            isSaving={saving}
-            error={saveError}
-          />
-        )}
+        </Modal>
+        <Modal
+          open={!!editing}
+          onClose={() => { setEditing(null); setSaveError(null); }}
+          title={editing ? `Edit: ${editing.title}` : ''}
+          maxWidth="max-w-2xl"
+        >
+          {editing && (
+            <ProductForm
+              product={editing}
+              categories={categoriesData?.items ?? []}
+              onSave={handleUpdate}
+              onCancel={() => { setEditing(null); setSaveError(null); }}
+              isSaving={saving}
+              error={saveError}
+              hideTitle
+            />
+          )}
+        </Modal>
 
         <section className="mb-8">
           <h2 className="m-0 mb-4 text-base font-semibold text-secondary-400 uppercase tracking-wider">
@@ -321,6 +402,7 @@ export default function Products() {
                   <tr className="border-b border-secondary-600">
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Title</th>
+                    <th className="py-2 px-3">Category</th>
                     <th className="py-2 px-3">Sub-products</th>
                     <th className="py-2 px-3">Order</th>
                     <th className="py-2 px-3"></th>
@@ -331,6 +413,7 @@ export default function Products() {
                     <tr key={item._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.title}</td>
+                      <td className="py-2 px-3 text-secondary-400">{item.categorySlug ?? '—'}</td>
                       <td className="py-2 px-3">{item.subProducts?.length ?? 0}</td>
                       <td className="py-2 px-3">{item.order}</td>
                       <td className="py-2 px-3">

@@ -1,0 +1,62 @@
+/* Quill editor wrapper - dark theme to match admin */
+.blog-rich-editor__quill {
+  --ql-editor-min-height: 220px;
+}
+
+.blog-rich-editor .ql-toolbar.ql-snow,
+.blog-rich-editor .ql-container.ql-snow {
+  border-color: rgb(75 85 99);
+}
+
+.blog-rich-editor .ql-toolbar.ql-snow {
+  background: rgb(31 41 55 / 0.5);
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.blog-rich-editor .ql-container.ql-snow {
+  background: rgb(17 24 39);
+  border-radius: 0 0 0.5rem 0.5rem;
+  border-top: 0;
+}
+
+.blog-rich-editor .ql-editor {
+  min-height: var(--ql-editor-min-height);
+  color: rgb(243 244 246);
+}
+
+.blog-rich-editor .ql-editor.ql-blank::before {
+  color: rgb(156 163 175);
+  font-style: normal;
+}
+
+.blog-rich-editor .ql-snow .ql-stroke {
+  stroke: rgb(75 85 99);
+}
+
+.blog-rich-editor .ql-snow .ql-fill {
+  fill: rgb(156 163 175);
+}
+
+.blog-rich-editor .ql-snow .ql-picker {
+  color: rgb(209 213 219);
+}
+
+.blog-rich-editor .ql-snow .ql-toolbar button:hover .ql-stroke,
+.blog-rich-editor .ql-snow .ql-toolbar button.ql-active .ql-stroke {
+  stroke: rgb(96 165 250);
+}
+
+.blog-rich-editor .ql-snow .ql-toolbar button:hover .ql-fill,
+.blog-rich-editor .ql-snow .ql-toolbar button.ql-active .ql-fill {
+  fill: rgb(96 165 250);
+}
+
+.blog-rich-editor .ql-editor a {
+  color: rgb(96 165 250);
+}
+
+.blog-rich-editor .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
