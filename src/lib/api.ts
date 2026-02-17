@@ -1,16 +1,15 @@
 const TOKEN_KEY = 'acousticsfx-admin-token';
 
 export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number
-  ) {
+  status: number;
+  constructor(message: string, status: number) {
     super(message);
     this.name = 'ApiError';
+    this.status = status;
   }
 }
 
-const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
 export function getToken(): string | null {
   try {

@@ -103,3 +103,22 @@
 .login-submit:active {
   background: #26a641;
 }
+
+.login-success {
+  color: #8b949e;
+  font-size: 0.9375rem;
+}
+
+.login-success p {
+  margin: 0 0 1rem;
+}
+
+.login-link {
+  color: #58a6ff;
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
