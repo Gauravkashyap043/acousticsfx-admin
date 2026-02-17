@@ -19,6 +19,9 @@ import CaseStudies from './pages/CaseStudies'
 import Events from './pages/Events'
 import Clients from './pages/Clients'
 import TrustedPartners from './pages/TrustedPartners'
+import FooterLinks from './pages/FooterLinks'
+import Locations from './pages/Locations'
+import Faqs from './pages/Faqs'
 
 function App() {
   return (
@@ -51,6 +54,9 @@ function App() {
               <Route path="events" element={<Events />} />
               <Route path="clients" element={<Clients />} />
               <Route path="trusted-partners" element={<TrustedPartners />} />
+              <Route path="footer-links" element={<FooterLinks />} />
+              <Route path="locations" element={<Locations />} />
+              <Route path="faqs" element={<Faqs />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

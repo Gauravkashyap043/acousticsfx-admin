@@ -18,6 +18,9 @@ const navItems = [
   { to: '/dashboard/events', key: 'events', label: 'Events', end: false },
   { to: '/dashboard/clients', key: 'clients', label: 'Our Clients', end: false },
   { to: '/dashboard/trusted-partners', key: 'trusted-partners', label: 'Trusted Partners', end: false },
+  { to: '/dashboard/footer-links', key: 'footer-links', label: 'Footer Links', end: false },
+  { to: '/dashboard/locations', key: 'locations', label: 'Locations', end: false },
+  { to: '/dashboard/faqs', key: 'faqs', label: 'FAQs', end: false },
 ] as const;
 
 export default function DashboardLayout() {
