@@ -4,6 +4,8 @@ import { createBlog, updateBlog, deleteBlog, type BlogItem } from '../api/blogs'
 import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 import { BlogForm } from '../components/BlogForm';
+import PageShell from '../components/PageShell';
+import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
 export default function Blogs() {
   const queryClient = useQueryClient();
@@ -117,9 +119,9 @@ export default function Blogs() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Blogs & articles</h1>
+    <PageShell
+      title="Blogs & articles"
+      action={
         <button
           type="button"
           onClick={openAdd}
@@ -127,8 +129,8 @@ export default function Blogs() {
         >
           Add blog
         </button>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+      }
+    >
         <Modal
           open={adding}
           onClose={closeForm}
@@ -171,16 +173,8 @@ export default function Blogs() {
           <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             All blogs
           </h2>
-          {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              Loading…
-            </p>
-          )}
-          {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              {error instanceof Error ? error.message : 'Failed to load blogs'}
-            </p>
-          )}
+          {isLoading && <InlineLoader />}
+          {isError && <ErrorState message={error instanceof Error ? error.message : 'Failed to load blogs'} />}
           {data && (
             <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
@@ -225,12 +219,9 @@ export default function Blogs() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              No blogs yet. Add a blog to get started.
-            </p>
+            <EmptyState message="No blogs yet. Add a blog to get started." />
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

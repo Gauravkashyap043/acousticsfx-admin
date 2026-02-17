@@ -9,10 +9,9 @@ import {
 import { getContentByKey, updateContent } from '../api/content';
 import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import PageShell from '../components/PageShell';
+import { EmptyState, CompactLoader } from '../components/EmptyState';
 
 /* ─── Section settings (title + description) ─── */
 
@@ -46,7 +45,7 @@ function SectionSettings() {
     finally { setSaving(false); }
   }
 
-  if (!loaded) return <p className="text-gray-500 text-sm">Loading…</p>;
+  if (!loaded) return <CompactLoader />;
 
   return (
     <div className="flex flex-col gap-4 p-5 rounded-xl border border-gray-300 bg-blue-50/40">
@@ -127,7 +126,7 @@ function LocationForm({
 
       <div className="flex gap-2">
         <button type="submit" disabled={isSaving || !title.trim()} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60">{isSaving ? 'Saving…' : 'Save'}</button>
-        <button type="button" onClick={onCancel} className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200">Cancel</button>
+        <button type="button" onClick={onCancel} className={cancelBtnClass}>Cancel</button>
       </div>
       {error && <p className="m-0 text-sm text-red-600">{error}</p>}
     </form>
@@ -165,12 +164,13 @@ export default function Locations() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Locations</h1>
+    <PageShell
+      title="Locations"
+      action={
         <button type="button" onClick={() => setAdding(true)} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700">Add location</button>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-8">
+      }
+    >
+      <div className="flex flex-col gap-8">
         <SectionSettings />
 
         <Modal open={adding} onClose={() => { setAdding(false); setSaveErr(null); }} title="Add location" maxWidth="max-w-lg">
@@ -180,7 +180,7 @@ export default function Locations() {
           {editing && <LocationForm location={editing} onSave={handleUpdate} onCancel={() => { setEditing(null); setSaveErr(null); }} isSaving={saving} error={saveErr} />}
         </Modal>
 
-        {isLoading && <p className="text-gray-500">Loading…</p>}
+        {isLoading && <CompactLoader />}
         {isError && <p className="text-red-600">{error instanceof Error ? error.message : 'Failed'}</p>}
         {data && data.items.length > 0 && (
           <div className="overflow-x-auto rounded-xl border border-gray-300">
@@ -210,9 +210,9 @@ export default function Locations() {
           </div>
         )}
         {data && data.items.length === 0 && !adding && (
-          <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">No locations yet.</p>
+          <EmptyState message="No locations yet." />
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

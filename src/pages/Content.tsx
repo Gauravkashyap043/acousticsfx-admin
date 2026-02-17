@@ -2,14 +2,9 @@ import { useState } from 'react';
 import { useContentList } from '../hooks/useContentList';
 import { useUpdateContentMutation } from '../hooks/useUpdateContentMutation';
 import type { ContentItem } from '../api/content';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
-const btnPrimary =
-  'py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60';
-const btnSecondary =
-  'py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200';
+import { inputClass, labelClass, primaryBtnClass, cancelBtnClass } from '../lib/styles';
+import PageShell from '../components/PageShell';
+import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
 function truncate(s: string, max: number) {
   if (s.length <= max) return s;
@@ -49,11 +44,7 @@ export default function Content() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Site content</h1>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+    <PageShell title="Site content">
         {editing && (
           <section className="mb-6">
             <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
@@ -85,11 +76,11 @@ export default function Content() {
                   type="button"
                   onClick={handleSave}
                   disabled={updateMutation.isPending}
-                  className={btnPrimary}
+                  className={primaryBtnClass}
                 >
                   {updateMutation.isPending ? 'Saving…' : 'Save'}
                 </button>
-                <button type="button" onClick={cancelEdit} className={btnSecondary}>
+                <button type="button" onClick={cancelEdit} className={cancelBtnClass}>
                   Cancel
                 </button>
               </div>
@@ -106,16 +97,8 @@ export default function Content() {
           <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             Content keys
           </h2>
-          {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              Loading…
-            </p>
-          )}
-          {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              {error instanceof Error ? error.message : 'Failed to load content'}
-            </p>
-          )}
+          {isLoading && <InlineLoader />}
+          {isError && <ErrorState message={error instanceof Error ? error.message : 'Failed to load content'} />}
           {data && (
             <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
@@ -157,12 +140,9 @@ export default function Content() {
             </div>
           )}
           {data && data.items.length === 0 && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              No content yet. Run backend seed:content to add defaults.
-            </p>
+            <EmptyState message="No content yet. Run backend seed:content to add defaults." />
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

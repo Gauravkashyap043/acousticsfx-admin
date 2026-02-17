@@ -8,6 +8,7 @@ import {
 import { useMeQuery } from '../hooks/useMeQuery';
 import type { AdminItem } from '../api/admins';
 import { ApiError } from '../lib/api';
+import PageLoader from '../components/PageLoader';
 
 const ROLES = ['super_admin', 'admin', 'editor'] as const;
 
@@ -291,9 +292,7 @@ export default function Users() {
         <header className="py-4 px-6 border-b border-gray-300">
           <h1 className="m-0 text-xl font-semibold tracking-tight">User management</h1>
         </header>
-        <div className="flex-1 p-6 flex items-center justify-center text-gray-500">
-          Loading…
-        </div>
+        <PageLoader />
       </div>
     );
   }

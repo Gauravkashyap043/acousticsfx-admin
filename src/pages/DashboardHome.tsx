@@ -6,6 +6,7 @@ import { useTestimonialsList } from '../hooks/useTestimonialsList';
 import { useNewsletterSubscriptionsList } from '../hooks/useNewsletterSubscriptionsList';
 import { useContactSubmissionsList } from '../hooks/useContactSubmissionsList';
 import { useEventsList } from '../hooks/useEventsList';
+import { Link } from 'react-router-dom';
 import {
   Users,
   Package,
@@ -128,8 +129,8 @@ export default function DashboardHome() {
           <h2 className="m-0 mb-1 text-base font-semibold text-gray-800">Quick Actions</h2>
           <p className="m-0 mb-4 text-sm text-gray-500">Common administrative tasks</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <a
-              href="/dashboard/users"
+            <Link
+              to="/dashboard/users"
               className="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition-colors no-underline"
             >
               <Users size={18} className="text-gray-400" />
@@ -137,9 +138,9 @@ export default function DashboardHome() {
                 <div className="text-sm font-medium text-gray-800">Add New User</div>
                 <div className="text-xs text-gray-400">Create a new user account</div>
               </div>
-            </a>
-            <a
-              href="/dashboard/products"
+            </Link>
+            <Link
+              to="/dashboard/products"
               className="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition-colors no-underline"
             >
               <Package size={18} className="text-gray-400" />
@@ -147,9 +148,9 @@ export default function DashboardHome() {
                 <div className="text-sm font-medium text-gray-800">Create Product</div>
                 <div className="text-xs text-gray-400">Add a new product to catalog</div>
               </div>
-            </a>
-            <a
-              href="/dashboard/blogs"
+            </Link>
+            <Link
+              to="/dashboard/blogs"
               className="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition-colors no-underline"
             >
               <FileText size={18} className="text-gray-400" />
@@ -157,7 +158,7 @@ export default function DashboardHome() {
                 <div className="text-sm font-medium text-gray-800">Create Blog</div>
                 <div className="text-xs text-gray-400">Write a new blog post</div>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

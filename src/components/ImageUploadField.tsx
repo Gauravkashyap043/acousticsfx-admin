@@ -1,9 +1,6 @@
 import { useRef, useState } from 'react';
 import { uploadImage } from '../api/upload';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass } from '../lib/styles';
 const buttonClass =
   'py-2 px-3 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400/50 disabled:opacity-60';
 

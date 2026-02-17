@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNewsletterSubscriptionsList } from '../hooks/useNewsletterSubscriptionsList';
 import Modal from '../components/Modal';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import PageShell from '../components/PageShell';
+import { CompactLoader } from '../components/EmptyState';
 
 function formatDate(iso: string) {
   try {
@@ -55,9 +54,9 @@ export default function Newsletter() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Newsletter</h1>
+    <PageShell
+      title="Newsletter"
+      action={
         <button
           type="button"
           onClick={handleOpenSendModal}
@@ -65,8 +64,8 @@ export default function Newsletter() {
         >
           Send newsletter
         </button>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+      }
+    >
 
         <Modal
           open={sendModalOpen}
@@ -123,7 +122,7 @@ export default function Newsletter() {
               <button
                 type="button"
                 onClick={() => setSendModalOpen(false)}
-                className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
+                className={cancelBtnClass}
               >
                 Cancel
               </button>
@@ -150,7 +149,7 @@ export default function Newsletter() {
               )}
             </div>
           )}
-          {isLoading && <p className="text-gray-500 text-sm">Loading…</p>}
+          {isLoading && <CompactLoader />}
           {isError && (
             <p className="text-red-600 text-sm">
               {error instanceof Error ? error.message : 'Failed to load subscriptions'}
@@ -204,7 +203,6 @@ export default function Newsletter() {
             </div>
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

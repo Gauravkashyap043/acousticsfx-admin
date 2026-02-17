@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useEventsList } from '../hooks/useEventsList';
 import { createEvent, updateEvent, deleteEvent, type EventItem } from '../api/events';
 import { useQueryClient } from '@tanstack/react-query';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import PageShell from '../components/PageShell';
+import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
 export default function Events() {
   const queryClient = useQueryClient();
@@ -84,10 +83,10 @@ export default function Events() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Events</h1>
-        {!adding && !editing && (
+    <PageShell
+      title="Events"
+      action={
+        !adding && !editing ? (
           <button
             type="button"
             onClick={openAdd}
@@ -95,9 +94,9 @@ export default function Events() {
           >
             Add event
           </button>
-        )}
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+        ) : undefined
+      }
+    >
         {(adding || editing) && (
           <section className="mb-6">
             <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
@@ -171,7 +170,7 @@ export default function Events() {
                 <button
                   type="button"
                   onClick={closeForm}
-                  className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
+                  className={cancelBtnClass}
                 >
                   Cancel
                 </button>
@@ -185,16 +184,8 @@ export default function Events() {
           <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             All events
           </h2>
-          {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              Loading…
-            </p>
-          )}
-          {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              {error instanceof Error ? error.message : 'Failed to load events'}
-            </p>
-          )}
+          {isLoading && <InlineLoader />}
+          {isError && <ErrorState message={error instanceof Error ? error.message : 'Failed to load events'} />}
           {data && (
             <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
@@ -235,12 +226,9 @@ export default function Events() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              No events yet. Add one to get started.
-            </p>
+            <EmptyState message="No events yet. Add one to get started." />
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

@@ -1,9 +1,6 @@
 import { BlogRichEditor } from './BlogRichEditor';
 import { ImageUploadField } from './ImageUploadField';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 
 function slugify(text: string): string {
   return text
@@ -204,7 +201,7 @@ export function BlogForm({
         <button
           type="button"
           onClick={onCancel}
-          className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
+          className={cancelBtnClass}
         >
           Cancel
         </button>

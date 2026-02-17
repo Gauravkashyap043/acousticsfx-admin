@@ -10,10 +10,9 @@ import { getContentByKey, updateContent } from '../api/content';
 import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 import { ImageUploadField } from '../components/ImageUploadField';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import PageShell from '../components/PageShell';
+import { EmptyState, CompactLoader } from '../components/EmptyState';
 
 /* ─── Section settings (title + background) via CMS content keys ─── */
 
@@ -52,7 +51,7 @@ function SectionSettings() {
     }
   }
 
-  if (!loaded) return <p className="text-gray-500 text-sm">Loading settings…</p>;
+  if (!loaded) return <CompactLoader />;
 
   return (
     <div className="flex flex-col gap-4 p-5 rounded-xl border border-gray-300 bg-blue-50/40">
@@ -153,7 +152,7 @@ function ClientForm({
         <button
           type="button"
           onClick={onCancel}
-          className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
+          className={cancelBtnClass}
         >
           Cancel
         </button>
@@ -217,9 +216,9 @@ export default function Clients() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Our Clients</h1>
+    <PageShell
+      title="Our Clients"
+      action={
         <button
           type="button"
           onClick={() => setAdding(true)}
@@ -227,9 +226,9 @@ export default function Clients() {
         >
           Add client logo
         </button>
-      </header>
-
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-8">
+      }
+    >
+      <div className="flex flex-col gap-8">
         {/* Section settings */}
         <SectionSettings />
 
@@ -270,11 +269,7 @@ export default function Clients() {
           <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             Client logos
           </h2>
-          {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              Loading…
-            </p>
-          )}
+          {isLoading && <CompactLoader />}
           {isError && (
             <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               {error instanceof Error ? error.message : 'Failed to load clients'}
@@ -331,12 +326,10 @@ export default function Clients() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
-              No client logos yet. Add one to show on the home page.
-            </p>
+            <EmptyState message="No client logos yet. Add one to show on the home page." />
           )}
         </section>
       </div>
-    </div>
+    </PageShell>
   );
 }

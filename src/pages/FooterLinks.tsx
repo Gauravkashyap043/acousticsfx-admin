@@ -9,10 +9,9 @@ import {
 import { getContentByKey, updateContent } from '../api/content';
 import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
-
-const inputClass =
-  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import PageShell from '../components/PageShell';
+import { CompactLoader } from '../components/EmptyState';
 const SECTIONS: FooterLinkItem['section'][] = ['services', 'resources'];
 
 /* ─── Footer text settings via CMS ─── */
@@ -49,7 +48,7 @@ function FooterTextSettings() {
     finally { setSaving(false); }
   }
 
-  if (!loaded) return <p className="text-gray-500 text-sm">Loading…</p>;
+  if (!loaded) return <CompactLoader />;
 
   return (
     <div className="flex flex-col gap-4 p-5 rounded-xl border border-gray-300 bg-blue-50/40">
@@ -114,7 +113,7 @@ function LinkForm({
         <button type="submit" disabled={isSaving || !label.trim()} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60">
           {isSaving ? 'Saving…' : 'Save'}
         </button>
-        <button type="button" onClick={onCancel} className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200">Cancel</button>
+        <button type="button" onClick={onCancel} className={cancelBtnClass}>Cancel</button>
       </div>
       {error && <p className="m-0 text-sm text-red-600">{error}</p>}
     </form>
@@ -182,12 +181,13 @@ export default function FooterLinks() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Footer Links</h1>
+    <PageShell
+      title="Footer Links"
+      action={
         <button type="button" onClick={() => setAdding(true)} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700">Add link</button>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-8">
+      }
+    >
+      <div className="flex flex-col gap-8">
         <FooterTextSettings />
         <Modal open={adding} onClose={() => { setAdding(false); setSaveErr(null); }} title="Add footer link" maxWidth="max-w-lg">
           <LinkForm link={null} onSave={handleCreate} onCancel={() => { setAdding(false); setSaveErr(null); }} isSaving={saving} error={saveErr} />
@@ -195,10 +195,10 @@ export default function FooterLinks() {
         <Modal open={!!editing} onClose={() => { setEditing(null); setSaveErr(null); }} title={editing ? `Edit: ${editing.label}` : ''} maxWidth="max-w-lg">
           {editing && <LinkForm link={editing} onSave={handleUpdate} onCancel={() => { setEditing(null); setSaveErr(null); }} isSaving={saving} error={saveErr} />}
         </Modal>
-        {isLoading && <p className="text-gray-500">Loading…</p>}
+        {isLoading && <CompactLoader />}
         {isError && <p className="text-red-600">{error instanceof Error ? error.message : 'Failed'}</p>}
         {data && SECTIONS.map(renderSection)}
       </div>
-    </div>
+    </PageShell>
   );
 }

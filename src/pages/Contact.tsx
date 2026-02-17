@@ -1,4 +1,6 @@
 import { useContactSubmissionsList } from '../hooks/useContactSubmissionsList';
+import PageShell from '../components/PageShell';
+import { CompactLoader } from '../components/EmptyState';
 
 function formatDate(iso: string) {
   try {
@@ -12,11 +14,7 @@ export default function Contact() {
   const { data, isLoading, isError, error } = useContactSubmissionsList();
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-900">
-      <header className="py-4 px-6 border-b border-gray-300">
-        <h1 className="m-0 text-xl font-semibold tracking-tight">Contact</h1>
-      </header>
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+    <PageShell title="Contact">
         <section className="mb-8">
           <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
             Edit contact information: address, phone, email, and social links (coming soon).
@@ -25,7 +23,7 @@ export default function Contact() {
 
         <section>
           <h2 className="text-lg font-medium text-gray-800 mb-4">Form submissions</h2>
-          {isLoading && <p className="text-gray-500 text-sm">Loading…</p>}
+          {isLoading && <CompactLoader />}
           {isError && (
             <p className="text-red-600 text-sm">
               {error instanceof Error ? error.message : 'Failed to load submissions'}
@@ -71,7 +69,6 @@ export default function Contact() {
             </div>
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }
