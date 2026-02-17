@@ -11,8 +11,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 
 const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
 /* ─── Section settings (title + description) ─── */
 
@@ -46,16 +46,16 @@ function SectionSettings() {
     finally { setSaving(false); }
   }
 
-  if (!loaded) return <p className="text-secondary-400 text-sm">Loading…</p>;
+  if (!loaded) return <p className="text-gray-500 text-sm">Loading…</p>;
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-xl border border-secondary-600 bg-secondary-800/40">
-      <h2 className="m-0 text-base font-semibold text-secondary-300 uppercase tracking-wider">Section Settings</h2>
+    <div className="flex flex-col gap-4 p-5 rounded-xl border border-gray-300 bg-blue-50/40">
+      <h2 className="m-0 text-base font-semibold text-gray-600 uppercase tracking-wider">Section Settings</h2>
       <label><span className={labelClass}>Section title</span><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} /></label>
       <label><span className={labelClass}>Description</span><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className={`${inputClass} resize-y`} /></label>
       <div className="flex items-center gap-3">
-        <button type="button" onClick={handleSave} disabled={saving} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60">{saving ? 'Saving…' : 'Save settings'}</button>
-        {msg && <span className="text-sm text-green-400">{msg}</span>}
+        <button type="button" onClick={handleSave} disabled={saving} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60">{saving ? 'Saving…' : 'Save settings'}</button>
+        {msg && <span className="text-sm text-green-600">{msg}</span>}
       </div>
     </div>
   );
@@ -105,20 +105,20 @@ function LocationForm({
       <label><span className={labelClass}>Title</span><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required className={inputClass} /></label>
 
       <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={highlight} onChange={(e) => setHighlight(e.target.checked)} className="rounded border-secondary-500" />
-        <span className="text-sm text-secondary-300">Highlighted card (orange border)</span>
+        <input type="checkbox" checked={highlight} onChange={(e) => setHighlight(e.target.checked)} className="rounded border-gray-300" />
+        <span className="text-sm text-gray-600">Highlighted card (orange border)</span>
       </label>
 
       <label><span className={labelClass}>Order</span><input type="number" value={order} onChange={(e) => setOrder(Number(e.target.value) || 0)} className={inputClass} /></label>
 
-      <fieldset className="flex flex-col gap-2 border border-secondary-600 rounded-lg p-3">
+      <fieldset className="flex flex-col gap-2 border border-gray-300 rounded-lg p-3">
         <legend className={labelClass}>Details (label → value)</legend>
         {items.map((item, idx) => (
           <div key={idx} className="flex gap-2 items-start">
             <input type="text" value={item.label} onChange={(e) => updateItem(idx, 'label', e.target.value)} placeholder="Label (e.g. Phone)" className={`${inputClass} flex-1`} />
             <input type="text" value={item.value} onChange={(e) => updateItem(idx, 'value', e.target.value)} placeholder="Value" className={`${inputClass} flex-[2]`} />
             {items.length > 1 && (
-              <button type="button" onClick={() => removeItem(idx)} className="py-2 px-2 text-red-400 hover:text-red-300 text-sm cursor-pointer">✕</button>
+              <button type="button" onClick={() => removeItem(idx)} className="py-2 px-2 text-red-600 hover:text-red-600 text-sm cursor-pointer">✕</button>
             )}
           </div>
         ))}
@@ -126,10 +126,10 @@ function LocationForm({
       </fieldset>
 
       <div className="flex gap-2">
-        <button type="submit" disabled={isSaving || !title.trim()} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60">{isSaving ? 'Saving…' : 'Save'}</button>
-        <button type="button" onClick={onCancel} className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700">Cancel</button>
+        <button type="submit" disabled={isSaving || !title.trim()} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60">{isSaving ? 'Saving…' : 'Save'}</button>
+        <button type="button" onClick={onCancel} className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200">Cancel</button>
       </div>
-      {error && <p className="m-0 text-sm text-red-400">{error}</p>}
+      {error && <p className="m-0 text-sm text-red-600">{error}</p>}
     </form>
   );
 }
@@ -165,10 +165,10 @@ export default function Locations() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Locations</h1>
-        <button type="button" onClick={() => setAdding(true)} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500">Add location</button>
+        <button type="button" onClick={() => setAdding(true)} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700">Add location</button>
       </header>
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-8">
         <SectionSettings />
@@ -180,12 +180,12 @@ export default function Locations() {
           {editing && <LocationForm location={editing} onSave={handleUpdate} onCancel={() => { setEditing(null); setSaveErr(null); }} isSaving={saving} error={saveErr} />}
         </Modal>
 
-        {isLoading && <p className="text-secondary-400">Loading…</p>}
-        {isError && <p className="text-red-400">{error instanceof Error ? error.message : 'Failed'}</p>}
+        {isLoading && <p className="text-gray-500">Loading…</p>}
+        {isError && <p className="text-red-600">{error instanceof Error ? error.message : 'Failed'}</p>}
         {data && data.items.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border border-secondary-600">
+          <div className="overflow-x-auto rounded-xl border border-gray-300">
             <table className="w-full border-collapse text-left">
-              <thead><tr className="border-b border-secondary-600">
+              <thead><tr className="border-b border-gray-300">
                 <th className="py-2 px-3">Title</th>
                 <th className="py-2 px-3">Details</th>
                 <th className="py-2 px-3">Highlight</th>
@@ -194,14 +194,14 @@ export default function Locations() {
               </tr></thead>
               <tbody>
                 {data.items.map((loc) => (
-                  <tr key={loc._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
+                  <tr key={loc._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
                     <td className="py-2 px-3 font-medium">{loc.title}</td>
-                    <td className="py-2 px-3 text-sm text-secondary-400">{loc.items.map((i) => `${i.label}: ${i.value}`).join(' | ')}</td>
+                    <td className="py-2 px-3 text-sm text-gray-500">{loc.items.map((i) => `${i.label}: ${i.value}`).join(' | ')}</td>
                     <td className="py-2 px-3">{loc.highlight ? '⭐' : '—'}</td>
                     <td className="py-2 px-3">{loc.order ?? 0}</td>
                     <td className="py-2 px-3">
                       <button type="button" onClick={() => setEditing(loc)} className="py-1 px-2 text-sm text-primary-400 hover:underline mr-2 cursor-pointer">Edit</button>
-                      <button type="button" onClick={() => handleDelete(loc._id)} className="py-1 px-2 text-sm text-red-400 hover:underline cursor-pointer">Delete</button>
+                      <button type="button" onClick={() => handleDelete(loc._id)} className="py-1 px-2 text-sm text-red-600 hover:underline cursor-pointer">Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -210,7 +210,7 @@ export default function Locations() {
           </div>
         )}
         {data && data.items.length === 0 && !adding && (
-          <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">No locations yet.</p>
+          <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">No locations yet.</p>
         )}
       </div>
     </div>

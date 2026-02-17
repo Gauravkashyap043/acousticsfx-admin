@@ -59,34 +59,34 @@ export default function Login() {
   const canSubmitSignUp = password.length >= 8 && password === confirmPassword;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-950">
-      <div className="w-full max-w-[400px] p-10 bg-secondary-800/90 border border-secondary-600/80 rounded-2xl shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-gray-50 to-gray-100">
+      <div className="w-full max-w-[400px] p-10 bg-white border border-gray-200 rounded-2xl shadow-xl">
         <div className="mb-8 text-center">
-          <h1 className="m-0 text-2xl font-semibold tracking-tight text-secondary-100">
+          <h1 className="m-0 text-2xl font-semibold tracking-tight text-gray-900">
             AcousticsFX
           </h1>
-          <p className="mt-2 text-[0.9375rem] text-secondary-400">
+          <p className="mt-2 text-[0.9375rem] text-gray-500">
             {mode === 'login' ? 'Admin sign in' : 'Create an account'}
           </p>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {errorMessage && (
-            <p className="m-0 py-2.5 px-3.5 text-sm text-red-500 bg-red-500/10 rounded-lg">
+            <p className="m-0 py-2.5 px-3.5 text-sm text-red-600 bg-red-50 rounded-lg">
               {errorMessage}
             </p>
           )}
           {showConfirmMismatch && (
-            <p className="m-0 py-2.5 px-3.5 text-sm text-red-500 bg-red-500/10 rounded-lg">
+            <p className="m-0 py-2.5 px-3.5 text-sm text-red-600 bg-red-50 rounded-lg">
               Passwords do not match
             </p>
           )}
           {showShortPassword && (
-            <p className="m-0 py-2.5 px-3.5 text-sm text-amber-500 bg-amber-500/10 rounded-lg">
+            <p className="m-0 py-2.5 px-3.5 text-sm text-amber-500 bg-amber-50 rounded-lg">
               Password must be at least 8 characters
             </p>
           )}
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-secondary-300">Email</span>
+            <span className="text-sm font-medium text-gray-600">Email</span>
             <input
               type="email"
               value={email}
@@ -95,11 +95,11 @@ export default function Login() {
               autoComplete="email"
               autoFocus
               disabled={isPending}
-              className="py-2.5 px-3.5 text-base text-secondary-100 bg-secondary-950 border border-secondary-600 rounded-lg outline-none transition border-secondary-600 focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-secondary-500 disabled:opacity-60"
+              className="py-2.5 px-3.5 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
             />
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-secondary-300">Password</span>
+            <span className="text-sm font-medium text-gray-600">Password</span>
             <input
               type="password"
               value={password}
@@ -107,12 +107,12 @@ export default function Login() {
               placeholder="••••••••"
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               disabled={isPending}
-              className="py-2.5 px-3.5 text-base text-secondary-100 bg-secondary-950 border border-secondary-600 rounded-lg outline-none transition border-secondary-600 focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-secondary-500 disabled:opacity-60"
+              className="py-2.5 px-3.5 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
             />
           </label>
           {mode === 'signup' && (
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-secondary-300">Confirm password</span>
+              <span className="text-sm font-medium text-gray-600">Confirm password</span>
               <input
                 type="password"
                 value={confirmPassword}
@@ -120,7 +120,7 @@ export default function Login() {
                 placeholder="••••••••"
                 autoComplete="new-password"
                 disabled={isPending}
-                className="py-2.5 px-3.5 text-base text-secondary-100 bg-secondary-950 border border-secondary-600 rounded-lg outline-none transition border-secondary-600 focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-secondary-500 disabled:opacity-60"
+                className="py-2.5 px-3.5 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
               />
             </label>
           )}

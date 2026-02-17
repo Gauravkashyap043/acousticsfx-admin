@@ -3,8 +3,8 @@ import { useNewsletterSubscriptionsList } from '../hooks/useNewsletterSubscripti
 import Modal from '../components/Modal';
 
 const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
 function formatDate(iso: string) {
   try {
@@ -55,13 +55,13 @@ export default function Newsletter() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Newsletter</h1>
         <button
           type="button"
           onClick={handleOpenSendModal}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
         >
           Send newsletter
         </button>
@@ -74,7 +74,7 @@ export default function Newsletter() {
           title="Send newsletter email"
           maxWidth="max-w-lg"
         >
-          <p className="text-secondary-400 text-sm mb-4">
+          <p className="text-gray-500 text-sm mb-4">
             {subscriberCount === 0
               ? 'No subscribers yet. Add signups from the public site first.'
               : selectedCount === 0
@@ -105,25 +105,25 @@ export default function Newsletter() {
               />
             </label>
             {sendStatus === 'info' && (
-              <p className="text-amber-400 text-sm">
+              <p className="text-amber-600 text-sm">
                 Frontend only — sending is not connected to the backend yet.
               </p>
             )}
             {sendStatus === 'success' && (
-              <p className="text-green-400 text-sm">Email sent successfully.</p>
+              <p className="text-green-600 text-sm">Email sent successfully.</p>
             )}
             <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={subscriberCount === 0 || selectedCount === 0}
-                className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Send newsletter
               </button>
               <button
                 type="button"
                 onClick={() => setSendModalOpen(false)}
-                className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700"
+                className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
               >
                 Cancel
               </button>
@@ -131,7 +131,7 @@ export default function Newsletter() {
           </form>
         </Modal>
         <section>
-          <p className="m-0 mb-2 text-[0.9375rem] text-secondary-400">
+          <p className="m-0 mb-2 text-[0.9375rem] text-gray-500">
             Emails submitted via the newsletter signup on the public site.
           </p>
           {items.length > 0 && (
@@ -144,25 +144,25 @@ export default function Newsletter() {
                 {allSelected ? 'Deselect all' : 'Select all'}
               </button>
               {selectedCount > 0 && (
-                <span className="text-secondary-400 text-sm">
+                <span className="text-gray-500 text-sm">
                   {selectedCount} selected
                 </span>
               )}
             </div>
           )}
-          {isLoading && <p className="text-secondary-400 text-sm">Loading…</p>}
+          {isLoading && <p className="text-gray-500 text-sm">Loading…</p>}
           {isError && (
-            <p className="text-red-400 text-sm">
+            <p className="text-red-600 text-sm">
               {error instanceof Error ? error.message : 'Failed to load subscriptions'}
             </p>
           )}
           {items.length === 0 && (
-            <p className="text-secondary-400 text-sm">No subscriptions yet.</p>
+            <p className="text-gray-500 text-sm">No subscriptions yet.</p>
           )}
           {items.length > 0 && (
-            <div className="overflow-x-auto border border-secondary-600 rounded-lg">
+            <div className="overflow-x-auto border border-gray-300 rounded-lg">
               <table className="w-full text-sm text-left">
-                <thead className="bg-secondary-800/80 text-secondary-300">
+                <thead className="bg-white text-gray-600">
                   <tr>
                     <th className="px-4 py-3 w-10">
                       <input
@@ -170,26 +170,26 @@ export default function Newsletter() {
                         checked={allSelected}
                         onChange={handleSelectAll}
                         aria-label={allSelected ? 'Deselect all' : 'Select all'}
-                        className="rounded border-secondary-600 cursor-pointer"
+                        className="rounded border-gray-300 cursor-pointer"
                       />
                     </th>
                     <th className="px-4 py-3 font-medium">Date</th>
                     <th className="px-4 py-3 font-medium">Email</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-secondary-700">
+                <tbody className="divide-y divide-gray-200">
                   {items.map((row) => (
-                    <tr key={row._id} className="bg-secondary-900/50 hover:bg-secondary-800/50">
+                    <tr key={row._id} className="bg-gray-50/50 hover:bg-blue-50/60">
                       <td className="px-4 py-3">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(row._id)}
                           onChange={() => handleToggleOne(row._id)}
                           aria-label={`Select ${row.email}`}
-                          className="rounded border-secondary-600 cursor-pointer"
+                          className="rounded border-gray-300 cursor-pointer"
                         />
                       </td>
-                      <td className="px-4 py-3 text-secondary-400 whitespace-nowrap">
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                         {formatDate(row.createdAt)}
                       </td>
                       <td className="px-4 py-3">

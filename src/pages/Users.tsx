@@ -61,16 +61,16 @@ function AddAdminForm({
   };
 
   const inputClass =
-    'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400';
-  const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+    'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400';
+  const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
   const tabsWithoutUsers = tabKeys.filter((k) => k !== 'users');
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
-      <h3 className="m-0 text-base font-semibold text-secondary-200">Add admin</h3>
+      <h3 className="m-0 text-base font-semibold text-gray-800">Add admin</h3>
       {create.isError && (
-        <p className="m-0 text-sm text-red-400">
+        <p className="m-0 text-sm text-red-600">
           {create.error instanceof ApiError ? create.error.message : 'Failed to create admin'}
         </p>
       )}
@@ -118,9 +118,9 @@ function AddAdminForm({
                 type="checkbox"
                 checked={visibleTabs.includes(key)}
                 onChange={() => toggleTab(key)}
-                className="rounded border-secondary-500"
+                className="rounded border-gray-300"
               />
-              <span className="text-sm text-secondary-300">{key}</span>
+              <span className="text-sm text-gray-600">{key}</span>
             </label>
           ))}
         </div>
@@ -129,14 +129,14 @@ function AddAdminForm({
         <button
           type="submit"
           disabled={create.isPending}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 disabled:opacity-50"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-700 disabled:opacity-50"
         >
           {create.isPending ? 'Adding…' : 'Add admin'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="py-2 px-4 text-sm font-medium text-secondary-300 bg-secondary-800 border border-secondary-600 rounded-lg hover:bg-secondary-700"
+          className="py-2 px-4 text-sm font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
         >
           Cancel
         </button>
@@ -184,30 +184,30 @@ function EditAdminModal({
   };
 
   const inputClass =
-    'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400';
-  const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+    'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400';
+  const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
       <div
-        className="bg-secondary-800 border border-secondary-600 rounded-xl shadow-xl max-w-md w-full mx-4 p-6"
+        className="bg-white border border-gray-300 rounded-xl shadow-xl max-w-md w-full mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="m-0 mb-4 text-base font-semibold text-secondary-200">
+        <h3 className="m-0 mb-4 text-base font-semibold text-gray-800">
           Edit {admin.email}
         </h3>
         {update.isError && (
-          <p className="m-0 mb-3 text-sm text-red-400">
+          <p className="m-0 mb-3 text-sm text-red-600">
             {update.error instanceof ApiError ? update.error.message : 'Update failed'}
           </p>
         )}
         {isSelf && (
-          <p className="m-0 mb-3 text-sm text-amber-400">
+          <p className="m-0 mb-3 text-sm text-amber-600">
             You are editing your own account. Demoting yourself may lock you out.
           </p>
         )}
         {cannotDemoteSuperAdmin && (
-          <p className="m-0 mb-3 text-sm text-amber-400">
+          <p className="m-0 mb-3 text-sm text-amber-600">
             At least one super_admin must always exist. Role cannot be changed.
           </p>
         )}
@@ -238,9 +238,9 @@ function EditAdminModal({
                       type="checkbox"
                       checked={visibleTabs.includes(key)}
                       onChange={() => toggleTab(key)}
-                      className="rounded border-secondary-500"
+                      className="rounded border-gray-300"
                     />
-                    <span className="text-sm text-secondary-300">{key}</span>
+                    <span className="text-sm text-gray-600">{key}</span>
                   </label>
                 ))}
               </div>
@@ -250,14 +250,14 @@ function EditAdminModal({
             <button
               type="submit"
               disabled={update.isPending}
-              className="py-2 px-4 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 disabled:opacity-50"
+              className="py-2 px-4 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-700 disabled:opacity-50"
             >
               {update.isPending ? 'Saving…' : 'Save'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="py-2 px-4 text-sm font-medium text-secondary-300 bg-secondary-700 border border-secondary-600 rounded-lg hover:bg-secondary-600"
+              className="py-2 px-4 text-sm font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
             >
               Cancel
             </button>
@@ -287,11 +287,11 @@ export default function Users() {
 
   if (isLoading || !data) {
     return (
-      <div className="min-h-screen flex flex-col text-secondary-100">
-        <header className="py-4 px-6 border-b border-secondary-600">
+      <div className="min-h-screen flex flex-col text-gray-900">
+        <header className="py-4 px-6 border-b border-gray-300">
           <h1 className="m-0 text-xl font-semibold tracking-tight">User management</h1>
         </header>
-        <div className="flex-1 p-6 flex items-center justify-center text-secondary-400">
+        <div className="flex-1 p-6 flex items-center justify-center text-gray-500">
           Loading…
         </div>
       </div>
@@ -300,11 +300,11 @@ export default function Users() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col text-secondary-100">
-        <header className="py-4 px-6 border-b border-secondary-600">
+      <div className="min-h-screen flex flex-col text-gray-900">
+        <header className="py-4 px-6 border-b border-gray-300">
           <h1 className="m-0 text-xl font-semibold tracking-tight">User management</h1>
         </header>
-        <div className="flex-1 p-6 text-red-400">
+        <div className="flex-1 p-6 text-red-600">
           {error instanceof ApiError ? error.message : 'Failed to load admins'}
         </div>
       </div>
@@ -317,14 +317,14 @@ export default function Users() {
     admin.role === 'super_admin' && superAdminCount === 1;
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between gap-4 flex-wrap">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between gap-4 flex-wrap">
         <h1 className="m-0 text-xl font-semibold tracking-tight">User management</h1>
         {!showAdd && (
           <button
             type="button"
             onClick={() => setShowAdd(true)}
-            className="py-2 px-4 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600"
+            className="py-2 px-4 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-700"
           >
             Add admin
           </button>
@@ -332,7 +332,7 @@ export default function Users() {
       </header>
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
         {showAdd && (
-          <section className="mb-8 p-6 bg-secondary-800/50 border border-secondary-600 rounded-xl">
+          <section className="mb-8 p-6 bg-gray-100 border border-gray-300 rounded-xl">
             <AddAdminForm
               tabKeys={tabKeys}
               onSuccess={() => setShowAdd(false)}
@@ -344,19 +344,19 @@ export default function Users() {
         <section>
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="border-b border-secondary-600">
-                <th className="py-3 px-4 text-sm font-semibold text-secondary-300">Email</th>
-                <th className="py-3 px-4 text-sm font-semibold text-secondary-300">Role</th>
-                <th className="py-3 px-4 text-sm font-semibold text-secondary-300">Tabs</th>
-                <th className="py-3 px-4 text-sm font-semibold text-secondary-300">Actions</th>
+              <tr className="border-b border-gray-300">
+                <th className="py-3 px-4 text-sm font-semibold text-gray-600">Email</th>
+                <th className="py-3 px-4 text-sm font-semibold text-gray-600">Role</th>
+                <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tabs</th>
+                <th className="py-3 px-4 text-sm font-semibold text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
               {admins.map((admin) => (
-                <tr key={admin.id} className="border-b border-secondary-700">
-                  <td className="py-3 px-4 text-secondary-100">{admin.email}</td>
-                  <td className="py-3 px-4 text-secondary-300">{admin.role}</td>
-                  <td className="py-3 px-4 text-secondary-400 text-sm">
+                <tr key={admin.id} className="border-b border-gray-200">
+                  <td className="py-3 px-4 text-gray-900">{admin.email}</td>
+                  <td className="py-3 px-4 text-gray-600">{admin.role}</td>
+                  <td className="py-3 px-4 text-gray-500 text-sm">
                     {visibleTabsSummary(admin, tabKeys)}
                   </td>
                   <td className="py-3 px-4">
@@ -364,7 +364,7 @@ export default function Users() {
                       <button
                         type="button"
                         onClick={() => setEditing(admin)}
-                        className="py-1.5 px-3 text-sm text-primary-400 hover:bg-primary-500/10 rounded"
+                        className="py-1.5 px-3 text-sm text-primary-400 hover:bg-blue-50 rounded"
                       >
                         Edit
                       </button>
@@ -372,7 +372,7 @@ export default function Users() {
                         <button
                           type="button"
                           onClick={() => setDeleting(admin)}
-                          className="py-1.5 px-3 text-sm text-red-400 hover:bg-red-500/10 rounded"
+                          className="py-1.5 px-3 text-sm text-red-600 hover:bg-red-50 rounded"
                         >
                           Delete
                         </button>
@@ -403,14 +403,14 @@ export default function Users() {
           onClick={() => setDeleting(null)}
         >
           <div
-            className="bg-secondary-800 border border-secondary-600 rounded-xl shadow-xl max-w-sm w-full mx-4 p-6"
+            className="bg-white border border-gray-300 rounded-xl shadow-xl max-w-sm w-full mx-4 p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="m-0 mb-2 text-secondary-200">
+            <p className="m-0 mb-2 text-gray-800">
               Delete <strong>{deleting.email}</strong>? This cannot be undone.
             </p>
             {deleteMutation.isError && (
-              <p className="m-0 mb-3 text-sm text-red-400">
+              <p className="m-0 mb-3 text-sm text-red-600">
                 {deleteMutation.error instanceof ApiError
                   ? deleteMutation.error.message
                   : 'Delete failed'}
@@ -428,7 +428,7 @@ export default function Users() {
               <button
                 type="button"
                 onClick={() => setDeleting(null)}
-                className="py-2 px-4 text-sm font-medium text-secondary-300 bg-secondary-700 border border-secondary-600 rounded-lg hover:bg-secondary-600"
+                className="py-2 px-4 text-sm font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
               >
                 Cancel
               </button>

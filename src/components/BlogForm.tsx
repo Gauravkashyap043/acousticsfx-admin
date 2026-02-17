@@ -2,8 +2,8 @@ import { BlogRichEditor } from './BlogRichEditor';
 import { ImageUploadField } from './ImageUploadField';
 
 const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
 function slugify(text: string): string {
   return text
@@ -83,7 +83,7 @@ export function BlogForm({
       </label>
       <label>
         <span className={labelClass}>URL slug</span>
-        <p className="text-xs text-secondary-500 mb-1">
+        <p className="text-xs text-gray-500 mb-1">
           {autoSlugFromTitle ? 'Generated from title. You can edit if needed.' : 'Used in the article link. Use lowercase letters, numbers and hyphens only.'}
         </p>
         <input
@@ -97,7 +97,7 @@ export function BlogForm({
       </label>
       <label>
         <span className={labelClass}>Short summary</span>
-        <p className="text-xs text-secondary-500 mb-1">Shown in blog listings and previews. One or two sentences.</p>
+        <p className="text-xs text-gray-500 mb-1">Shown in blog listings and previews. One or two sentences.</p>
         <textarea
           value={form.excerpt}
           onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))}
@@ -155,7 +155,7 @@ export function BlogForm({
       />
       <label>
         <span className={labelClass}>Meta description (optional)</span>
-        <p className="text-xs text-secondary-500 mb-1">For SEO. Shown in search results.</p>
+        <p className="text-xs text-gray-500 mb-1">For SEO. Shown in search results.</p>
         <textarea
           value={form.metaDescription}
           onChange={(e) => setForm((f) => ({ ...f, metaDescription: e.target.value }))}
@@ -166,7 +166,7 @@ export function BlogForm({
       </label>
       <label>
         <span className={labelClass}>Tags</span>
-        <p className="text-xs text-secondary-500 mb-1">Comma-separated (e.g. Insights, Strategy, Acoustics).</p>
+        <p className="text-xs text-gray-500 mb-1">Comma-separated (e.g. Insights, Strategy, Acoustics).</p>
         <input
           type="text"
           value={form.tags}
@@ -180,7 +180,7 @@ export function BlogForm({
           type="checkbox"
           checked={form.isPublished}
           onChange={(e) => setForm((f) => ({ ...f, isPublished: e.target.checked }))}
-          className="rounded border-secondary-600"
+          className="rounded border-gray-300"
         />
         <span className={labelClass}>Published (show on public site)</span>
       </label>
@@ -197,19 +197,19 @@ export function BlogForm({
         <button
           type="submit"
           disabled={saving || !form.slug.trim() || !form.title.trim()}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700"
+          className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
         >
           Cancel
         </button>
       </div>
-      {saveError && <p className="m-0 text-sm text-red-400">{saveError}</p>}
+      {saveError && <p className="m-0 text-sm text-red-600">{saveError}</p>}
     </form>
   );
 }

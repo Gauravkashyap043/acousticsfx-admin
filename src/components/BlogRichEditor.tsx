@@ -4,7 +4,7 @@ import { uploadImage } from '../api/upload';
 import 'react-quill-new/dist/quill.snow.css';
 import './BlogRichEditor.css';
 
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
 const MODULES = {
   toolbar: [
@@ -63,7 +63,7 @@ export function BlogRichEditor({ value, onChange }: BlogRichEditorProps) {
   return (
     <div className="blog-rich-editor">
       <span className={labelClass}>Article content</span>
-      <p className="text-xs text-secondary-500 mb-1">
+      <p className="text-xs text-gray-500 mb-1">
         Write your post below. Use the toolbar for formatting. Click the image icon or paste an image to upload.
       </p>
       <input

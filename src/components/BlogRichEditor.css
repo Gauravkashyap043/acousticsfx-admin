@@ -1,58 +1,58 @@
-/* Quill editor wrapper - dark theme to match admin */
+/* Quill editor wrapper - light theme to match admin */
 .blog-rich-editor__quill {
   --ql-editor-min-height: 220px;
 }
 
 .blog-rich-editor .ql-toolbar.ql-snow,
 .blog-rich-editor .ql-container.ql-snow {
-  border-color: rgb(75 85 99);
+  border-color: #e5e7eb;
 }
 
 .blog-rich-editor .ql-toolbar.ql-snow {
-  background: rgb(31 41 55 / 0.5);
+  background: #f9fafb;
   border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .blog-rich-editor .ql-container.ql-snow {
-  background: rgb(17 24 39);
+  background: #ffffff;
   border-radius: 0 0 0.5rem 0.5rem;
   border-top: 0;
 }
 
 .blog-rich-editor .ql-editor {
   min-height: var(--ql-editor-min-height);
-  color: rgb(243 244 246);
+  color: #111827;
 }
 
 .blog-rich-editor .ql-editor.ql-blank::before {
-  color: rgb(156 163 175);
+  color: #9ca3af;
   font-style: normal;
 }
 
 .blog-rich-editor .ql-snow .ql-stroke {
-  stroke: rgb(75 85 99);
+  stroke: #6b7280;
 }
 
 .blog-rich-editor .ql-snow .ql-fill {
-  fill: rgb(156 163 175);
+  fill: #9ca3af;
 }
 
 .blog-rich-editor .ql-snow .ql-picker {
-  color: rgb(209 213 219);
+  color: #374151;
 }
 
 .blog-rich-editor .ql-snow .ql-toolbar button:hover .ql-stroke,
 .blog-rich-editor .ql-snow .ql-toolbar button.ql-active .ql-stroke {
-  stroke: rgb(96 165 250);
+  stroke: #2563eb;
 }
 
 .blog-rich-editor .ql-snow .ql-toolbar button:hover .ql-fill,
 .blog-rich-editor .ql-snow .ql-toolbar button.ql-active .ql-fill {
-  fill: rgb(96 165 250);
+  fill: #2563eb;
 }
 
 .blog-rich-editor .ql-editor a {
-  color: rgb(96 165 250);
+  color: #2563eb;
 }
 
 .blog-rich-editor .ql-editor img {

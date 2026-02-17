@@ -4,16 +4,16 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { resetPassword } from '../api/auth';
 
 const pageWrapper =
-  'min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-950';
+  'min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-gray-50 to-gray-100';
 const card =
-  'w-full max-w-[400px] p-10 bg-secondary-800/90 border border-secondary-600/80 rounded-2xl shadow-2xl';
+  'w-full max-w-[400px] p-10 bg-white border border-gray-200 rounded-2xl shadow-xl';
 const header = 'mb-8 text-center';
-const title = 'm-0 text-2xl font-semibold tracking-tight text-secondary-100';
-const subtitle = 'mt-2 text-[0.9375rem] text-secondary-400';
+const title = 'm-0 text-2xl font-semibold tracking-tight text-gray-900';
+const subtitle = 'mt-2 text-[0.9375rem] text-gray-500';
 const inputClass =
-  'py-2.5 px-3.5 text-base text-secondary-100 bg-secondary-950 border border-secondary-600 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-secondary-500 disabled:opacity-60';
+  'py-2.5 px-3.5 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60';
 const labelClass = 'flex flex-col gap-2';
-const labelSpan = 'text-sm font-medium text-secondary-300';
+const labelSpan = 'text-sm font-medium text-gray-600';
 const btnPrimary =
   'mt-1 py-3 px-5 text-base font-medium text-white bg-accent-600 rounded-lg cursor-pointer transition hover:bg-accent-500 active:bg-accent-700 disabled:opacity-60';
 const linkClass = 'text-primary-400 no-underline hover:underline';
@@ -78,7 +78,7 @@ export default function ResetPassword() {
           <p className={subtitle}>Enter and confirm your new password</p>
         </div>
         {status === 'success' ? (
-          <div className="text-secondary-400 text-[0.9375rem]">
+          <div className="text-gray-500 text-[0.9375rem]">
             <p className="m-0 mb-4">
               Password has been reset. You can sign in with your new password.
             </p>
@@ -92,7 +92,7 @@ export default function ResetPassword() {
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {message && (
-              <p className="m-0 py-2.5 px-3.5 text-sm text-red-500 bg-red-500/10 rounded-lg">
+              <p className="m-0 py-2.5 px-3.5 text-sm text-red-600 bg-red-50 rounded-lg">
                 {message}
               </p>
             )}

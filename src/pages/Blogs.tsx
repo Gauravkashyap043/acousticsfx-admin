@@ -117,13 +117,13 @@ export default function Blogs() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Blogs & articles</h1>
         <button
           type="button"
           onClick={openAdd}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
         >
           Add blog
         </button>
@@ -168,24 +168,24 @@ export default function Blogs() {
         </Modal>
 
         <section className="mb-8">
-          <h2 className="m-0 mb-4 text-base font-semibold text-secondary-400 uppercase tracking-wider">
+          <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             All blogs
           </h2>
           {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               Loading…
             </p>
           )}
           {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               {error instanceof Error ? error.message : 'Failed to load blogs'}
             </p>
           )}
           {data && (
-            <div className="overflow-x-auto rounded-xl border border-secondary-600">
+            <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-secondary-600">
+                  <tr className="border-b border-gray-300">
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Title</th>
                     <th className="py-2 px-3">Author</th>
@@ -196,12 +196,12 @@ export default function Blogs() {
                 </thead>
                 <tbody>
                   {data.items.map((item) => (
-                    <tr key={item._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
+                    <tr key={item._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.title}</td>
                       <td className="py-2 px-3">{item.authorName}</td>
                       <td className="py-2 px-3">{item.isPublished !== false ? 'Published' : 'Draft'}</td>
-                      <td className="py-2 px-3 text-secondary-400">{item.views ?? 0}</td>
+                      <td className="py-2 px-3 text-gray-500">{item.views ?? 0}</td>
                       <td className="py-2 px-3">
                         <button
                           type="button"
@@ -213,7 +213,7 @@ export default function Blogs() {
                         <button
                           type="button"
                           onClick={() => handleDelete(item._id)}
-                          className="py-1 px-2 text-sm text-red-400 hover:underline"
+                          className="py-1 px-2 text-sm text-red-600 hover:underline"
                         >
                           Delete
                         </button>
@@ -225,7 +225,7 @@ export default function Blogs() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               No blogs yet. Add a blog to get started.
             </p>
           )}

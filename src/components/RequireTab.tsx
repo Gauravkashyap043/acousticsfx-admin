@@ -12,7 +12,7 @@ export default function RequireTab({ tabKey }: RequireTabProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary-950 text-secondary-400">
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-500">
         Loading…
       </div>
     );

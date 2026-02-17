@@ -113,13 +113,13 @@ function ProductForm({
   };
 
   const inputClass =
-    'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-  const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+    'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+  const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
   return (
     <section className={hideTitle ? undefined : 'mb-6'}>
       {!hideTitle && (
-        <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
+        <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
           {product ? 'Edit product' : 'Add product'}
         </h2>
       )}
@@ -180,7 +180,7 @@ function ProductForm({
               </option>
             ))}
           </select>
-          <p className="m-0 mt-1 text-xs text-secondary-400">
+          <p className="m-0 mt-1 text-xs text-gray-500">
             Assigns product to a category for /products/{categorySlug || '…'} pages.
           </p>
         </label>
@@ -195,7 +195,7 @@ function ProductForm({
         </label>
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-secondary-300">Sub-products</span>
+            <span className="text-sm text-gray-600">Sub-products</span>
             <button
               type="button"
               onClick={addSub}
@@ -214,25 +214,25 @@ function ProductForm({
           {subProducts.map((sub, i) => (
             <div
               key={i}
-              className="border border-secondary-600 p-2 mb-2 grid grid-cols-[1fr_1fr_2fr_auto_auto] gap-2 items-center rounded-lg"
+              className="border border-gray-300 p-2 mb-2 grid grid-cols-[1fr_1fr_2fr_auto_auto] gap-2 items-center rounded-lg"
             >
               <input
                 placeholder="slug"
                 value={sub.slug}
                 onChange={(e) => updateSub(i, 'slug', e.target.value)}
-                className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100"
+                className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
               />
               <input
                 placeholder="title"
                 value={sub.title}
                 onChange={(e) => updateSub(i, 'title', e.target.value)}
-                className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100"
+                className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
               />
               <input
                 placeholder="description"
                 value={sub.description}
                 onChange={(e) => updateSub(i, 'description', e.target.value)}
-                className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100"
+                className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
               />
               <div className="flex gap-1 items-center flex-wrap">
                 <button
@@ -247,13 +247,13 @@ function ProductForm({
                   placeholder="image URL"
                   value={sub.image}
                   onChange={(e) => updateSub(i, 'image', e.target.value)}
-                  className="py-1 px-2 text-sm bg-secondary-900 border border-secondary-600 rounded text-secondary-100 flex-1 min-w-0"
+                  className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900 flex-1 min-w-0"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => removeSub(i)}
-                className="py-1 px-2 text-sm text-red-400 hover:underline cursor-pointer"
+                className="py-1 px-2 text-sm text-red-600 hover:underline cursor-pointer"
               >
                 Remove
               </button>
@@ -264,19 +264,19 @@ function ProductForm({
           <button
             type="submit"
             disabled={isSaving || !slug.trim() || !title.trim()}
-            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60"
+            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700"
+            className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
           >
             Cancel
           </button>
         </div>
-        {error && <p className="m-0 text-sm text-red-400">{error}</p>}
+        {error && <p className="m-0 text-sm text-red-600">{error}</p>}
       </form>
     </section>
   );
@@ -334,13 +334,13 @@ export default function Products() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Products</h1>
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
         >
           Add product
         </button>
@@ -382,24 +382,24 @@ export default function Products() {
         </Modal>
 
         <section className="mb-8">
-          <h2 className="m-0 mb-4 text-base font-semibold text-secondary-400 uppercase tracking-wider">
+          <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             All products
           </h2>
           {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               Loading…
             </p>
           )}
           {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               {error instanceof Error ? error.message : 'Failed to load products'}
             </p>
           )}
           {data && (
-            <div className="overflow-x-auto rounded-xl border border-secondary-600">
+            <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-secondary-600">
+                  <tr className="border-b border-gray-300">
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Title</th>
                     <th className="py-2 px-3">Category</th>
@@ -410,10 +410,10 @@ export default function Products() {
                 </thead>
                 <tbody>
                   {data.items.map((item) => (
-                    <tr key={item._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
+                    <tr key={item._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.title}</td>
-                      <td className="py-2 px-3 text-secondary-400">{item.categorySlug ?? '—'}</td>
+                      <td className="py-2 px-3 text-gray-500">{item.categorySlug ?? '—'}</td>
                       <td className="py-2 px-3">{item.subProducts?.length ?? 0}</td>
                       <td className="py-2 px-3">{item.order}</td>
                       <td className="py-2 px-3">
@@ -427,7 +427,7 @@ export default function Products() {
                         <button
                           type="button"
                           onClick={() => handleDelete(item._id)}
-                          className="py-1 px-2 text-sm text-red-400 hover:underline"
+                          className="py-1 px-2 text-sm text-red-600 hover:underline"
                         >
                           Delete
                         </button>
@@ -439,7 +439,7 @@ export default function Products() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               No products yet. Run backend seed:products to add defaults, or Add product.
             </p>
           )}

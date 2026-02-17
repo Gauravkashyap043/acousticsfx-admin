@@ -11,8 +11,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 
 const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 const SECTIONS: FooterLinkItem['section'][] = ['services', 'resources'];
 
 /* ─── Footer text settings via CMS ─── */
@@ -49,11 +49,11 @@ function FooterTextSettings() {
     finally { setSaving(false); }
   }
 
-  if (!loaded) return <p className="text-secondary-400 text-sm">Loading…</p>;
+  if (!loaded) return <p className="text-gray-500 text-sm">Loading…</p>;
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-xl border border-secondary-600 bg-secondary-800/40">
-      <h2 className="m-0 text-base font-semibold text-secondary-300 uppercase tracking-wider">Footer text settings</h2>
+    <div className="flex flex-col gap-4 p-5 rounded-xl border border-gray-300 bg-blue-50/40">
+      <h2 className="m-0 text-base font-semibold text-gray-600 uppercase tracking-wider">Footer text settings</h2>
       {keys.map((k) => (
         <label key={k}>
           <span className={labelClass}>{labels[k]}</span>
@@ -61,10 +61,10 @@ function FooterTextSettings() {
         </label>
       ))}
       <div className="flex items-center gap-3">
-        <button type="button" onClick={handleSave} disabled={saving} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60">
+        <button type="button" onClick={handleSave} disabled={saving} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60">
           {saving ? 'Saving…' : 'Save settings'}
         </button>
-        {msg && <span className="text-sm text-green-400">{msg}</span>}
+        {msg && <span className="text-sm text-green-600">{msg}</span>}
       </div>
     </div>
   );
@@ -111,12 +111,12 @@ function LinkForm({
         <input type="number" value={order} onChange={(e) => setOrder(Number(e.target.value) || 0)} className={inputClass} />
       </label>
       <div className="flex gap-2">
-        <button type="submit" disabled={isSaving || !label.trim()} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60">
+        <button type="submit" disabled={isSaving || !label.trim()} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60">
           {isSaving ? 'Saving…' : 'Save'}
         </button>
-        <button type="button" onClick={onCancel} className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700">Cancel</button>
+        <button type="button" onClick={onCancel} className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200">Cancel</button>
       </div>
-      {error && <p className="m-0 text-sm text-red-400">{error}</p>}
+      {error && <p className="m-0 text-sm text-red-600">{error}</p>}
     </form>
   );
 }
@@ -155,21 +155,21 @@ export default function FooterLinks() {
     const items = (data?.items ?? []).filter((i) => i.section === sec);
     return (
       <div key={sec}>
-        <h3 className="m-0 mb-3 text-sm font-semibold text-secondary-400 uppercase tracking-wider">{sec === 'services' ? 'Our Services' : 'Resources'}</h3>
-        {items.length === 0 && <p className="text-sm text-secondary-500">No items yet.</p>}
+        <h3 className="m-0 mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">{sec === 'services' ? 'Our Services' : 'Resources'}</h3>
+        {items.length === 0 && <p className="text-sm text-gray-500">No items yet.</p>}
         {items.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border border-secondary-600">
+          <div className="overflow-x-auto rounded-xl border border-gray-300">
             <table className="w-full border-collapse text-left">
-              <thead><tr className="border-b border-secondary-600"><th className="py-2 px-3">Label</th><th className="py-2 px-3">Link</th><th className="py-2 px-3">Order</th><th className="py-2 px-3"></th></tr></thead>
+              <thead><tr className="border-b border-gray-300"><th className="py-2 px-3">Label</th><th className="py-2 px-3">Link</th><th className="py-2 px-3">Order</th><th className="py-2 px-3"></th></tr></thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
+                  <tr key={item._id} className="border-b border-gray-200 hover:bg-blue-50/60 transition-colors">
                     <td className="py-2 px-3">{item.label}</td>
-                    <td className="py-2 px-3 text-secondary-400">{item.href || '—'}</td>
+                    <td className="py-2 px-3 text-gray-500">{item.href || '—'}</td>
                     <td className="py-2 px-3">{item.order ?? 0}</td>
                     <td className="py-2 px-3">
                       <button type="button" onClick={() => setEditing(item)} className="py-1 px-2 text-sm text-primary-400 hover:underline mr-2 cursor-pointer">Edit</button>
-                      <button type="button" onClick={() => handleDelete(item._id)} className="py-1 px-2 text-sm text-red-400 hover:underline cursor-pointer">Delete</button>
+                      <button type="button" onClick={() => handleDelete(item._id)} className="py-1 px-2 text-sm text-red-600 hover:underline cursor-pointer">Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -182,10 +182,10 @@ export default function FooterLinks() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Footer Links</h1>
-        <button type="button" onClick={() => setAdding(true)} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500">Add link</button>
+        <button type="button" onClick={() => setAdding(true)} className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700">Add link</button>
       </header>
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-8">
         <FooterTextSettings />
@@ -195,8 +195,8 @@ export default function FooterLinks() {
         <Modal open={!!editing} onClose={() => { setEditing(null); setSaveErr(null); }} title={editing ? `Edit: ${editing.label}` : ''} maxWidth="max-w-lg">
           {editing && <LinkForm link={editing} onSave={handleUpdate} onCancel={() => { setEditing(null); setSaveErr(null); }} isSaving={saving} error={saveErr} />}
         </Modal>
-        {isLoading && <p className="text-secondary-400">Loading…</p>}
-        {isError && <p className="text-red-400">{error instanceof Error ? error.message : 'Failed'}</p>}
+        {isLoading && <p className="text-gray-500">Loading…</p>}
+        {isError && <p className="text-red-600">{error instanceof Error ? error.message : 'Failed'}</p>}
         {data && SECTIONS.map(renderSection)}
       </div>
     </div>

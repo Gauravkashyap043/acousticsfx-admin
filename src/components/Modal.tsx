@@ -27,22 +27,22 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
       <div
-        className={`bg-secondary-800 border border-secondary-600 rounded-xl shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto`}
+        className={`bg-white border border-gray-200 rounded-xl shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
-          <h2 id="modal-title" className="m-0 p-4 pb-0 text-base font-semibold text-secondary-200">
+          <h2 id="modal-title" className="m-0 px-6 pt-5 pb-1 text-lg font-semibold text-gray-800">
             {title}
           </h2>
         )}
-        <div className={title ? 'p-4' : 'p-4'}>{children}</div>
+        <div className={title ? 'px-6 pb-5 pt-3' : 'p-6'}>{children}</div>
       </div>
     </div>
   );

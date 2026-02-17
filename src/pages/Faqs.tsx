@@ -10,8 +10,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 
 const inputClass =
-  'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+  'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
 /* ─── FAQ form ─── */
 
@@ -77,28 +77,28 @@ function FaqForm({
             type="checkbox"
             checked={isPublished}
             onChange={(e) => setIsPublished(e.target.checked)}
-            className="w-4 h-4 accent-primary-500"
+            className="w-4 h-4 accent-blue-600"
           />
-          <span className="text-sm text-secondary-300">Published</span>
+          <span className="text-sm text-gray-600">Published</span>
         </label>
       </div>
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={isSaving || !question.trim() || !answer.trim()}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
         >
           {isSaving ? 'Saving…' : 'Save'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700"
+          className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
         >
           Cancel
         </button>
       </div>
-      {error && <p className="m-0 text-sm text-red-400">{error}</p>}
+      {error && <p className="m-0 text-sm text-red-600">{error}</p>}
     </form>
   );
 }
@@ -138,13 +138,13 @@ export default function Faqs() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">FAQs</h1>
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
         >
           Add FAQ
         </button>
@@ -162,18 +162,18 @@ export default function Faqs() {
 
         <section>
           {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">Loading…</p>
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">Loading…</p>
           )}
           {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               {error instanceof Error ? error.message : 'Failed to load FAQs'}
             </p>
           )}
           {data && data.items.length > 0 && (
-            <div className="overflow-x-auto rounded-xl border border-secondary-600">
+            <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-secondary-600">
+                  <tr className="border-b border-gray-300">
                     <th className="py-2 px-3 w-8">#</th>
                     <th className="py-2 px-3">Question</th>
                     <th className="py-2 px-3 w-20">Order</th>
@@ -183,21 +183,21 @@ export default function Faqs() {
                 </thead>
                 <tbody>
                   {data.items.map((item, idx) => (
-                    <tr key={item._id} className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors">
-                      <td className="py-2 px-3 text-secondary-400">{idx + 1}</td>
+                    <tr key={item._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
+                      <td className="py-2 px-3 text-gray-500">{idx + 1}</td>
                       <td className="py-2 px-3">
                         <p className="m-0 font-medium">{item.question}</p>
-                        <p className="m-0 mt-1 text-sm text-secondary-400 line-clamp-2">{item.answer}</p>
+                        <p className="m-0 mt-1 text-sm text-gray-500 line-clamp-2">{item.answer}</p>
                       </td>
                       <td className="py-2 px-3">{item.order ?? 0}</td>
                       <td className="py-2 px-3">
-                        <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${item.isPublished !== false ? 'bg-green-900/40 text-green-400' : 'bg-secondary-700 text-secondary-400'}`}>
+                        <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${item.isPublished !== false ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
                           {item.isPublished !== false ? 'Published' : 'Draft'}
                         </span>
                       </td>
                       <td className="py-2 px-3">
                         <button type="button" onClick={() => setEditing(item)} className="py-1 px-2 text-sm text-primary-400 hover:underline mr-2 cursor-pointer">Edit</button>
-                        <button type="button" onClick={() => handleDelete(item._id)} className="py-1 px-2 text-sm text-red-400 hover:underline cursor-pointer">Delete</button>
+                        <button type="button" onClick={() => handleDelete(item._id)} className="py-1 px-2 text-sm text-red-600 hover:underline cursor-pointer">Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -206,7 +206,7 @@ export default function Faqs() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               No FAQs yet. Add one to show on the home and contact pages.
             </p>
           )}

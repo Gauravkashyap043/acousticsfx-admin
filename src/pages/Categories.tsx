@@ -49,13 +49,13 @@ function CategoryForm({
   };
 
   const inputClass =
-    'w-full py-2 px-3 text-secondary-100 bg-secondary-900 border border-secondary-600 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
-  const labelClass = 'block text-sm font-medium text-secondary-300 mb-1';
+    'w-full py-2 px-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400/30';
+  const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
   return (
     <section className={hideTitle ? undefined : 'mb-6'}>
       {!hideTitle && (
-        <h2 className="m-0 mb-4 text-base font-semibold text-secondary-300">
+        <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
           {category ? 'Edit category' : 'Add category'}
         </h2>
       )}
@@ -70,7 +70,7 @@ function CategoryForm({
             required
             className={inputClass}
           />
-          <p className="m-0 mt-1 text-xs text-secondary-400">
+          <p className="m-0 mt-1 text-xs text-gray-500">
             Used in URLs: /products/{slug || '…'}
           </p>
         </label>
@@ -113,19 +113,19 @@ function CategoryForm({
           <button
             type="submit"
             disabled={isSaving || !slug.trim() || !name.trim()}
-            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500 disabled:opacity-60"
+            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="py-2 px-4 text-sm font-medium text-secondary-300 bg-transparent border border-secondary-600 rounded-lg cursor-pointer hover:bg-secondary-700"
+            className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200"
           >
             Cancel
           </button>
         </div>
-        {error && <p className="m-0 text-sm text-red-400">{error}</p>}
+        {error && <p className="m-0 text-sm text-red-600">{error}</p>}
       </form>
     </section>
   );
@@ -183,13 +183,13 @@ export default function Categories() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-secondary-100">
-      <header className="py-4 px-6 border-b border-secondary-600 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-gray-900">
+      <header className="py-4 px-6 border-b border-gray-300 flex items-center justify-between">
         <h1 className="m-0 text-xl font-semibold tracking-tight">Categories</h1>
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-500"
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
         >
           Add category
         </button>
@@ -229,24 +229,24 @@ export default function Categories() {
         </Modal>
 
         <section className="mb-8">
-          <h2 className="m-0 mb-4 text-base font-semibold text-secondary-400 uppercase tracking-wider">
+          <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
             All categories
           </h2>
           {isLoading && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               Loading…
             </p>
           )}
           {isError && (
-            <p className="m-0 p-6 text-[0.9375rem] text-red-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-red-600 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               {error instanceof Error ? error.message : 'Failed to load categories'}
             </p>
           )}
           {data && (
-            <div className="overflow-x-auto rounded-xl border border-secondary-600">
+            <div className="overflow-x-auto rounded-xl border border-gray-300">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-secondary-600">
+                  <tr className="border-b border-gray-300">
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Name</th>
                     <th className="py-2 px-3">Description</th>
@@ -258,11 +258,11 @@ export default function Categories() {
                   {data.items.map((item) => (
                     <tr
                       key={item._id}
-                      className="border-b border-secondary-700 hover:bg-secondary-800/50 transition-colors"
+                      className="border-b border-gray-200 hover:bg-blue-50/60 transition-colors"
                     >
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.name}</td>
-                      <td className="py-2 px-3 text-secondary-400 max-w-[200px] truncate">
+                      <td className="py-2 px-3 text-gray-500 max-w-[200px] truncate">
                         {item.description || '—'}
                       </td>
                       <td className="py-2 px-3">{item.order}</td>
@@ -277,7 +277,7 @@ export default function Categories() {
                         <button
                           type="button"
                           onClick={() => handleDelete(item._id)}
-                          className="py-1 px-2 text-sm text-red-400 hover:underline cursor-pointer"
+                          className="py-1 px-2 text-sm text-red-600 hover:underline cursor-pointer"
                         >
                           Delete
                         </button>
@@ -289,7 +289,7 @@ export default function Categories() {
             </div>
           )}
           {data && data.items.length === 0 && !adding && (
-            <p className="m-0 p-6 text-[0.9375rem] text-secondary-400 bg-secondary-800/50 border border-dashed border-secondary-600 rounded-xl">
+            <p className="m-0 p-6 text-[0.9375rem] text-gray-500 bg-gray-100 border border-dashed border-gray-300 rounded-xl">
               No categories yet. Add a category or run backend seed:categories.
             </p>
           )}
