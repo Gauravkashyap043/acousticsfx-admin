@@ -234,6 +234,9 @@ function ProductForm({
                 className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
               />
               <div className="flex gap-1 items-center flex-wrap">
+                {sub.image && (
+                  <img src={sub.image} alt="" className="h-8 w-8 rounded object-cover border border-gray-300 shrink-0" />
+                )}
                 <button
                   type="button"
                   onClick={() => { subProductUploadRowRef.current = i; subProductFileRef.current?.click(); }}
@@ -391,6 +394,7 @@ export default function Products() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-gray-300">
+                    <th className="py-2 px-3">Image</th>
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Title</th>
                     <th className="py-2 px-3">Category</th>
@@ -402,6 +406,13 @@ export default function Products() {
                 <tbody>
                   {data.items.map((item) => (
                     <tr key={item._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
+                      <td className="py-2 px-3">
+                        {item.image ? (
+                          <img src={item.image} alt={item.title} className="h-10 w-auto max-w-[80px] rounded object-cover" />
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.title}</td>
                       <td className="py-2 px-3 text-gray-500">{item.categorySlug ?? '—'}</td>

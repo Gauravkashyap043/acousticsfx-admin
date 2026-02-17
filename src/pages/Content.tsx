@@ -3,6 +3,7 @@ import { useContentList } from '../hooks/useContentList';
 import { useUpdateContentMutation } from '../hooks/useUpdateContentMutation';
 import type { ContentItem } from '../api/content';
 import { inputClass, labelClass, primaryBtnClass, cancelBtnClass } from '../lib/styles';
+import { ImageUploadField } from '../components/ImageUploadField';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
@@ -51,15 +52,24 @@ export default function Content() {
               Edit: {editing.key}
             </h2>
             <div className="flex flex-col gap-3 max-w-[600px]">
-              <label>
-                <span className={labelClass}>Value</span>
-                <textarea
+              {formType === 'image' ? (
+                <ImageUploadField
+                  label="Value"
+                  hint="Upload via ImageKit or paste URL."
                   value={formValue}
-                  onChange={(e) => setFormValue(e.target.value)}
-                  rows={formType === 'text' ? 4 : 1}
-                  className={`${inputClass} resize-y`}
+                  onChange={setFormValue}
                 />
-              </label>
+              ) : (
+                <label>
+                  <span className={labelClass}>Value</span>
+                  <textarea
+                    value={formValue}
+                    onChange={(e) => setFormValue(e.target.value)}
+                    rows={4}
+                    className={`${inputClass} resize-y`}
+                  />
+                </label>
+              )}
               <label>
                 <span className={labelClass}>Type</span>
                 <select
@@ -115,8 +125,12 @@ export default function Content() {
                   {data.items.map((item) => (
                     <tr key={item.key} className="border-b border-gray-200 hover:bg-blue-50/60 transition-colors">
                       <td className="py-2 px-3 font-mono text-sm">{item.key}</td>
-                      <td className="py-2 px-3 max-w-[300px] truncate">
-                        {truncate(item.value, 60)}
+                      <td className="py-2 px-3 max-w-[300px]">
+                        {(item.type === 'image') && item.value ? (
+                          <img src={item.value} alt={item.key} className="h-10 w-auto max-w-[120px] rounded object-cover" />
+                        ) : (
+                          <span className="truncate block">{truncate(item.value, 60)}</span>
+                        )}
                       </td>
                       <td className="py-2 px-3">{item.type ?? 'text'}</td>
                       <td className="py-2 px-3 text-sm">

@@ -238,6 +238,7 @@ export default function Categories() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-gray-300">
+                    <th className="py-2 px-3">Image</th>
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Name</th>
                     <th className="py-2 px-3">Description</th>
@@ -251,6 +252,13 @@ export default function Categories() {
                       key={item._id}
                       className="border-b border-gray-200 hover:bg-blue-50/60 transition-colors"
                     >
+                      <td className="py-2 px-3">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="h-10 w-auto max-w-[80px] rounded object-cover" />
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.name}</td>
                       <td className="py-2 px-3 text-gray-500 max-w-[200px] truncate">

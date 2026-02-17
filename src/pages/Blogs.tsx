@@ -180,6 +180,7 @@ export default function Blogs() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-gray-300">
+                    <th className="py-2 px-3">Hero</th>
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Title</th>
                     <th className="py-2 px-3">Author</th>
@@ -191,6 +192,13 @@ export default function Blogs() {
                 <tbody>
                   {data.items.map((item) => (
                     <tr key={item._id} className="border-b border-gray-200 hover:bg-gray-100 transition-colors">
+                      <td className="py-2 px-3">
+                        {item.heroImage ? (
+                          <img src={item.heroImage} alt={item.title} className="h-10 w-auto max-w-[80px] rounded object-cover" />
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.title}</td>
                       <td className="py-2 px-3">{item.authorName}</td>

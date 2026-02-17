@@ -259,7 +259,9 @@ export default function Testimonials() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-gray-300">
+                    <th className="py-2 px-3">Avatar</th>
                     <th className="py-2 px-3">Company</th>
+                    <th className="py-2 px-3">Logo</th>
                     <th className="py-2 px-3">Name</th>
                     <th className="py-2 px-3">Role</th>
                     <th className="py-2 px-3">Order</th>
@@ -272,7 +274,21 @@ export default function Testimonials() {
                       key={item._id}
                       className="border-b border-gray-200 hover:bg-blue-50/60 transition-colors"
                     >
+                      <td className="py-2 px-3">
+                        {item.avatar ? (
+                          <img src={item.avatar} alt={item.name} className="h-8 w-8 rounded-full object-cover" />
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3">{item.company}</td>
+                      <td className="py-2 px-3">
+                        {item.companyLogo ? (
+                          <img src={item.companyLogo} alt={item.company} className="h-8 w-auto max-w-[80px] object-contain" />
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3">{item.name}</td>
                       <td className="py-2 px-3 text-gray-500 max-w-[200px] truncate">
                         {item.role || '—'}
