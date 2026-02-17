@@ -17,6 +17,7 @@ import Blogs from './pages/Blogs'
 import Content from './pages/Content'
 import CaseStudies from './pages/CaseStudies'
 import Events from './pages/Events'
+import Clients from './pages/Clients'
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
               <Route path="content" element={<Content />} />
               <Route path="case-studies" element={<CaseStudies />} />
               <Route path="events" element={<Events />} />
+              <Route path="clients" element={<Clients />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
