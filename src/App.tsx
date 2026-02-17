@@ -22,6 +22,7 @@ import TrustedPartners from './pages/TrustedPartners'
 import FooterLinks from './pages/FooterLinks'
 import Locations from './pages/Locations'
 import Faqs from './pages/Faqs'
+import SocialLinks from './pages/SocialLinks'
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
               <Route path="footer-links" element={<FooterLinks />} />
               <Route path="locations" element={<Locations />} />
               <Route path="faqs" element={<Faqs />} />
+              <Route path="social-links" element={<SocialLinks />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -20,6 +20,7 @@ import {
   Link,
   MapPin,
   HelpCircle,
+  Share2,
   LogOut,
   Search,
   Bell,
@@ -44,6 +45,7 @@ const iconMap: Record<string, React.ElementType> = {
   'footer-links': Link,
   locations: MapPin,
   faqs: HelpCircle,
+  'social-links': Share2,
 };
 
 const navItems = [
@@ -63,6 +65,7 @@ const navItems = [
   { to: '/dashboard/footer-links', key: 'footer-links', label: 'Footer Links', end: false },
   { to: '/dashboard/locations', key: 'locations', label: 'Locations', end: false },
   { to: '/dashboard/faqs', key: 'faqs', label: 'FAQs', end: false },
+  { to: '/dashboard/social-links', key: 'social-links', label: 'Social Links', end: false },
 ] as const;
 
 export default function DashboardLayout() {
