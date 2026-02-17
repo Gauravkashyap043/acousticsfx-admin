@@ -17,6 +17,7 @@ const navItems = [
   { to: '/dashboard/case-studies', key: 'case-studies', label: 'Case studies', end: false },
   { to: '/dashboard/events', key: 'events', label: 'Events', end: false },
   { to: '/dashboard/clients', key: 'clients', label: 'Our Clients', end: false },
+  { to: '/dashboard/trusted-partners', key: 'trusted-partners', label: 'Trusted Partners', end: false },
 ] as const;
 
 export default function DashboardLayout() {

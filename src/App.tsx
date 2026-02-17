@@ -18,6 +18,7 @@ import Content from './pages/Content'
 import CaseStudies from './pages/CaseStudies'
 import Events from './pages/Events'
 import Clients from './pages/Clients'
+import TrustedPartners from './pages/TrustedPartners'
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
               <Route path="case-studies" element={<CaseStudies />} />
               <Route path="events" element={<Events />} />
               <Route path="clients" element={<Clients />} />
+              <Route path="trusted-partners" element={<TrustedPartners />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
