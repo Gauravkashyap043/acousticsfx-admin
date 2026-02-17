@@ -10,10 +10,18 @@ export interface AdminItem {
 export interface AdminsListResponse {
   admins: AdminItem[];
   tabKeys: string[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
-export function listAdmins(): Promise<AdminsListResponse> {
-  return request<AdminsListResponse>('/api/admin/admins');
+export function listAdmins(params?: { page?: number; limit?: number }): Promise<AdminsListResponse> {
+  const sp = new URLSearchParams();
+  if (params?.page != null) sp.set('page', String(params.page));
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  const qs = sp.toString();
+  return request<AdminsListResponse>(`/api/admin/admins${qs ? `?${qs}` : ''}`);
 }
 
 export function createAdmin(body: {

@@ -64,7 +64,7 @@ export default function DashboardHome() {
   const { data: contactData } = useContactSubmissionsList();
   const { data: eventsData } = useEventsList();
 
-  const usersCount = adminsData?.admins?.length ?? 0;
+  const usersCount = adminsData?.total ?? 0;
   const productsCount = productsData?.items?.length ?? 0;
   const blogsCount = blogsData?.items?.length ?? 0;
   const categoriesCount = categoriesData?.items?.length ?? 0;
