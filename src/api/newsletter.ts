@@ -8,8 +8,18 @@ export interface NewsletterSubscriptionItem {
 
 export interface NewsletterSubscriptionsListResponse {
   items: NewsletterSubscriptionItem[];
+  total: number;
+  limit: number;
+  skip: number;
 }
 
-export function listNewsletterSubscriptions(): Promise<NewsletterSubscriptionsListResponse> {
-  return request<NewsletterSubscriptionsListResponse>('/api/admin/newsletter-subscriptions');
+export function listNewsletterSubscriptions(params?: {
+  limit?: number;
+  skip?: number;
+}): Promise<NewsletterSubscriptionsListResponse> {
+  const sp = new URLSearchParams();
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  if (params?.skip != null) sp.set('skip', String(params.skip));
+  const q = sp.toString();
+  return request<NewsletterSubscriptionsListResponse>(`/api/admin/newsletter-subscriptions${q ? `?${q}` : ''}`);
 }

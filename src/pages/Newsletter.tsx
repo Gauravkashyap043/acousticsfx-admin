@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useNewsletterSubscriptionsList } from '../hooks/useNewsletterSubscriptionsList';
 import Modal from '../components/Modal';
+import Pagination from '../components/Pagination';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 import PageShell from '../components/PageShell';
 import { CompactLoader } from '../components/EmptyState';
+
+const PAGE_SIZE = 20;
 
 function formatDate(iso: string) {
   try {
@@ -14,7 +17,8 @@ function formatDate(iso: string) {
 }
 
 export default function Newsletter() {
-  const { data, isLoading, isError, error } = useNewsletterSubscriptionsList();
+  const [skip, setSkip] = useState(0);
+  const { data, isLoading, isError, error } = useNewsletterSubscriptionsList({ limit: PAGE_SIZE, skip });
   const [sendModalOpen, setSendModalOpen] = useState(false);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -22,13 +26,21 @@ export default function Newsletter() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const items = data?.items ?? [];
-  const subscriberCount = items.length;
+  const totalCount = data?.total ?? 0;
+  const pageItemCount = items.length;
   const selectedCount = selectedIds.size;
-  const allSelected = subscriberCount > 0 && selectedCount === subscriberCount;
+  const allPageSelected = pageItemCount > 0 && items.every((i) => selectedIds.has(i._id));
 
-  const handleSelectAll = () => {
-    if (allSelected) setSelectedIds(new Set());
-    else setSelectedIds(new Set(items.map((i) => i._id)));
+  const handleSelectAllPage = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allPageSelected) {
+        items.forEach((i) => next.delete(i._id));
+      } else {
+        items.forEach((i) => next.add(i._id));
+      }
+      return next;
+    });
   };
 
   const handleToggleOne = (id: string) => {
@@ -49,7 +61,6 @@ export default function Newsletter() {
 
   const handleSendNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
-    // Frontend only for now – no API call
     setSendStatus('info');
   };
 
@@ -74,7 +85,7 @@ export default function Newsletter() {
           maxWidth="max-w-lg"
         >
           <p className="text-gray-500 text-sm mb-4">
-            {subscriberCount === 0
+            {totalCount === 0
               ? 'No subscribers yet. Add signups from the public site first.'
               : selectedCount === 0
                 ? 'No subscribers selected. Use Select all or check individuals in the list below, then open this again.'
@@ -114,7 +125,7 @@ export default function Newsletter() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={subscriberCount === 0 || selectedCount === 0}
+                disabled={totalCount === 0 || selectedCount === 0}
                 className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Send newsletter
@@ -133,14 +144,14 @@ export default function Newsletter() {
           <p className="m-0 mb-2 text-[0.9375rem] text-gray-500">
             Emails submitted via the newsletter signup on the public site.
           </p>
-          {items.length > 0 && (
+          {pageItemCount > 0 && (
             <div className="mb-3 flex items-center gap-4">
               <button
                 type="button"
-                onClick={handleSelectAll}
+                onClick={handleSelectAllPage}
                 className="text-sm text-primary-400 hover:underline cursor-pointer"
               >
-                {allSelected ? 'Deselect all' : 'Select all'}
+                {allPageSelected ? 'Deselect page' : 'Select page'}
               </button>
               {selectedCount > 0 && (
                 <span className="text-gray-500 text-sm">
@@ -155,52 +166,60 @@ export default function Newsletter() {
               {error instanceof Error ? error.message : 'Failed to load subscriptions'}
             </p>
           )}
-          {items.length === 0 && (
+          {pageItemCount === 0 && skip === 0 && !isLoading && (
             <p className="text-gray-500 text-sm">No subscriptions yet.</p>
           )}
-          {items.length > 0 && (
-            <div className="overflow-x-auto border border-gray-300 rounded-lg">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-white text-gray-600">
-                  <tr>
-                    <th className="px-4 py-3 w-10">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={handleSelectAll}
-                        aria-label={allSelected ? 'Deselect all' : 'Select all'}
-                        className="rounded border-gray-300 cursor-pointer"
-                      />
-                    </th>
-                    <th className="px-4 py-3 font-medium">Date</th>
-                    <th className="px-4 py-3 font-medium">Email</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {items.map((row) => (
-                    <tr key={row._id} className="bg-gray-50/50 hover:bg-blue-50/60">
-                      <td className="px-4 py-3">
+          {pageItemCount > 0 && (
+            <>
+              <div className="overflow-x-auto border border-gray-300 rounded-lg">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-white text-gray-600">
+                    <tr>
+                      <th className="px-4 py-3 w-10">
                         <input
                           type="checkbox"
-                          checked={selectedIds.has(row._id)}
-                          onChange={() => handleToggleOne(row._id)}
-                          aria-label={`Select ${row.email}`}
+                          checked={allPageSelected}
+                          onChange={handleSelectAllPage}
+                          aria-label={allPageSelected ? 'Deselect page' : 'Select page'}
                           className="rounded border-gray-300 cursor-pointer"
                         />
-                      </td>
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                        {formatDate(row.createdAt)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <a href={`mailto:${row.email}`} className="text-primary-400 hover:underline">
-                          {row.email}
-                        </a>
-                      </td>
+                      </th>
+                      <th className="px-4 py-3 font-medium">Date</th>
+                      <th className="px-4 py-3 font-medium">Email</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {items.map((row) => (
+                      <tr key={row._id} className="bg-gray-50/50 hover:bg-blue-50/60">
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(row._id)}
+                            onChange={() => handleToggleOne(row._id)}
+                            aria-label={`Select ${row.email}`}
+                            className="rounded border-gray-300 cursor-pointer"
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                          {formatDate(row.createdAt)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <a href={`mailto:${row.email}`} className="text-primary-400 hover:underline">
+                            {row.email}
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination
+                total={data!.total}
+                limit={data!.limit}
+                skip={data!.skip}
+                onPageChange={setSkip}
+              />
+            </>
           )}
         </section>
     </PageShell>

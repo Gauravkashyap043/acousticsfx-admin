@@ -12,8 +12,18 @@ export interface ContactSubmissionItem {
 
 export interface ContactSubmissionsListResponse {
   items: ContactSubmissionItem[];
+  total: number;
+  limit: number;
+  skip: number;
 }
 
-export function listContactSubmissions(): Promise<ContactSubmissionsListResponse> {
-  return request<ContactSubmissionsListResponse>('/api/admin/contact-submissions');
+export function listContactSubmissions(params?: {
+  limit?: number;
+  skip?: number;
+}): Promise<ContactSubmissionsListResponse> {
+  const sp = new URLSearchParams();
+  if (params?.limit != null) sp.set('limit', String(params.limit));
+  if (params?.skip != null) sp.set('skip', String(params.skip));
+  const q = sp.toString();
+  return request<ContactSubmissionsListResponse>(`/api/admin/contact-submissions${q ? `?${q}` : ''}`);
 }

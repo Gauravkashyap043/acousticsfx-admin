@@ -13,11 +13,14 @@ import Modal from '../components/Modal';
 
 const ROLES = ['super_admin', 'admin', 'editor'] as const;
 
-function visibleTabsSummary(admin: AdminItem, tabKeys: string[]): string {
-  if (admin.role === 'super_admin') return 'All';
-  if (!admin.visibleTabs?.length) return 'Default';
-  if (admin.visibleTabs.length === tabKeys.filter((k) => k !== 'users').length) return 'Default';
-  return `Custom (${admin.visibleTabs.length})`;
+const PAGE_SIZE = 10;
+
+function visibleTabsDisplay(admin: AdminItem, tabKeys: string[]): { label: string; tabs: string[] } {
+  const tabsWithoutUsers = tabKeys.filter((k) => k !== 'users');
+  if (admin.role === 'super_admin') return { label: 'All', tabs: [...tabKeys] };
+  if (!admin.visibleTabs?.length) return { label: 'Default', tabs: tabsWithoutUsers };
+  if (admin.visibleTabs.length === tabsWithoutUsers.length) return { label: 'Default', tabs: tabsWithoutUsers };
+  return { label: `Custom (${admin.visibleTabs.length})`, tabs: admin.visibleTabs };
 }
 
 function AddAdminForm({
@@ -266,7 +269,8 @@ function EditAdminModal({
 export default function Users() {
   const { data: meData } = useMeQuery();
   const currentAdminId = meData?.admin?.id ?? null;
-  const { data, isLoading, error } = useAdminsList();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useAdminsList({ page, limit: PAGE_SIZE });
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<AdminItem | null>(null);
   const [deleting, setDeleting] = useState<AdminItem | null>(null);
@@ -304,7 +308,7 @@ export default function Users() {
     );
   }
 
-  const { admins, tabKeys } = data;
+  const { admins, tabKeys, total, totalPages } = data;
   const superAdminCount = admins.filter((a) => a.role === 'super_admin').length;
   const isOnlySuperAdmin = (admin: AdminItem) =>
     admin.role === 'super_admin' && superAdminCount === 1;
@@ -338,42 +342,83 @@ export default function Users() {
               <tr className="border-b border-gray-300">
                 <th className="py-3 px-4 text-sm font-semibold text-gray-600">Email</th>
                 <th className="py-3 px-4 text-sm font-semibold text-gray-600">Role</th>
-                <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tabs</th>
+                <th className="py-3 px-4 text-sm font-semibold text-gray-600 min-w-[200px]">Visible tabs</th>
                 <th className="py-3 px-4 text-sm font-semibold text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {admins.map((admin) => (
-                <tr key={admin.id} className="border-b border-gray-200">
-                  <td className="py-3 px-4 text-gray-900">{admin.email}</td>
-                  <td className="py-3 px-4 text-gray-600">{admin.role}</td>
-                  <td className="py-3 px-4 text-gray-500 text-sm">
-                    {visibleTabsSummary(admin, tabKeys)}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditing(admin)}
-                        className="py-1.5 px-3 text-sm text-primary-400 hover:bg-blue-50 rounded"
-                      >
-                        Edit
-                      </button>
-                      {!isOnlySuperAdmin(admin) && (
+              {admins.map((admin) => {
+                const { label, tabs } = visibleTabsDisplay(admin, tabKeys);
+                return (
+                  <tr key={admin.id} className="border-b border-gray-200">
+                    <td className="py-3 px-4 text-gray-900">{admin.email}</td>
+                    <td className="py-3 px-4 text-gray-600">{admin.role}</td>
+                    <td className="py-3 px-4 text-gray-600 text-sm">
+                      <span className="font-medium text-gray-500">{label}:</span>{' '}
+                      <span className="flex flex-wrap gap-1 mt-0.5">
+                        {tabs.map((key) => (
+                          <span
+                            key={key}
+                            className="inline-block py-0.5 px-1.5 rounded bg-gray-100 text-gray-700 text-xs"
+                          >
+                            {key}
+                          </span>
+                        ))}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() => setDeleting(admin)}
-                          className="py-1.5 px-3 text-sm text-red-600 hover:bg-red-50 rounded"
+                          onClick={() => setEditing(admin)}
+                          className="py-1.5 px-3 text-sm text-primary-400 hover:bg-blue-50 rounded"
                         >
-                          Delete
+                          Edit
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {!isOnlySuperAdmin(admin) && (
+                          <button
+                            type="button"
+                            onClick={() => setDeleting(admin)}
+                            className="py-1.5 px-3 text-sm text-red-600 hover:bg-red-50 rounded"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
+              <p className="text-sm text-gray-600 m-0">
+                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="py-1.5 px-3 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  Previous
+                </button>
+                <span className="py-1.5 px-2 text-sm text-gray-600">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="py-1.5 px-3 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 
