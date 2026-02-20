@@ -93,7 +93,7 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="h-screen overflow-hidden flex bg-gray-100">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -102,12 +102,12 @@ export default function DashboardLayout() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - fixed on all viewports so navbar and sidebar stay in place */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-white border-r border-gray-200
           transform transition-transform duration-200 ease-in-out
-          lg:relative lg:translate-x-0
+          lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
@@ -166,10 +166,10 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center gap-4 h-16 px-6 bg-white border-b border-gray-200">
+      {/* Main content - offset by sidebar width on desktop, only this area scrolls */}
+      <div className="flex-1 flex flex-col min-h-0 h-screen overflow-hidden lg:ml-64">
+        {/* Top bar - fixed at top */}
+        <header className="flex-shrink-0 z-30 flex items-center gap-4 h-16 px-6 bg-white border-b border-gray-200">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -204,7 +204,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto bg-gray-50">
+        <main className="flex-1 min-h-0 overflow-auto bg-gray-50">
           <Outlet />
         </main>
       </div>

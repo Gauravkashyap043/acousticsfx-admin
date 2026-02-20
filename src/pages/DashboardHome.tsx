@@ -74,8 +74,8 @@ export default function DashboardHome() {
   const eventsCount = eventsData?.items?.length ?? 0;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
+    <div className="flex flex-col">
+      <div className="p-6 max-w-7xl mx-auto w-full">
         <div className="mb-6">
           <h1 className="m-0 text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="m-0 mt-1 text-sm text-gray-500">

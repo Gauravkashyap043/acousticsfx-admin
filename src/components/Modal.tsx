@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface ModalProps {
   open: boolean;
@@ -34,15 +35,27 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
       aria-labelledby={title ? 'modal-title' : undefined}
     >
       <div
-        className={`bg-white border border-gray-200 rounded-xl shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto`}
+        className={`bg-white border border-gray-200 rounded-xl shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && (
-          <h2 id="modal-title" className="m-0 px-6 pt-5 pb-1 text-lg font-semibold text-gray-800">
-            {title}
-          </h2>
-        )}
-        <div className={title ? 'px-6 pb-5 pt-3' : 'p-6'}>{children}</div>
+        <div className="flex items-center justify-between flex-shrink-0 px-6 pt-5 pb-1">
+          {title ? (
+            <h2 id="modal-title" className="m-0 text-lg font-semibold text-gray-800">
+              {title}
+            </h2>
+          ) : (
+            <span />
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 -mr-1.5 -mt-0.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            aria-label="Close"
+          >
+            <X size={20} strokeWidth={2} />
+          </button>
+        </div>
+        <div className={title ? 'px-6 pb-5 pt-3' : 'px-6 pb-5 pt-0'}>{children}</div>
       </div>
     </div>
   );

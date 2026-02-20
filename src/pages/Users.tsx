@@ -9,6 +9,7 @@ import { useMeQuery } from '../hooks/useMeQuery';
 import type { AdminItem } from '../api/admins';
 import { ApiError } from '../lib/api';
 import PageLoader from '../components/PageLoader';
+import Modal from '../components/Modal';
 
 const ROLES = ['super_admin', 'admin', 'editor'] as const;
 
@@ -69,7 +70,6 @@ function AddAdminForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
-      <h3 className="m-0 text-base font-semibold text-gray-800">Add admin</h3>
       {create.isError && (
         <p className="m-0 text-sm text-red-600">
           {create.error instanceof ApiError ? create.error.message : 'Failed to create admin'}
@@ -189,14 +189,8 @@ function EditAdminModal({
   const labelClass = 'block text-sm font-medium text-gray-600 mb-1';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div
-        className="bg-white border border-gray-300 rounded-xl shadow-xl max-w-md w-full mx-4 p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="m-0 mb-4 text-base font-semibold text-gray-800">
-          Edit {admin.email}
-        </h3>
+    <Modal open onClose={onClose} title={`Edit ${admin.email}`} maxWidth="max-w-md">
+      <div className="flex flex-col gap-4">
         {update.isError && (
           <p className="m-0 mb-3 text-sm text-red-600">
             {update.error instanceof ApiError ? update.error.message : 'Update failed'}
@@ -265,7 +259,7 @@ function EditAdminModal({
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -330,15 +324,13 @@ export default function Users() {
         )}
       </header>
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
-        {showAdd && (
-          <section className="mb-8 p-6 bg-gray-100 border border-gray-300 rounded-xl">
-            <AddAdminForm
-              tabKeys={tabKeys}
-              onSuccess={() => setShowAdd(false)}
-              onCancel={() => setShowAdd(false)}
-            />
-          </section>
-        )}
+        <Modal open={showAdd} onClose={() => setShowAdd(false)} title="Add admin" maxWidth="max-w-md">
+          <AddAdminForm
+            tabKeys={tabKeys}
+            onSuccess={() => setShowAdd(false)}
+            onCancel={() => setShowAdd(false)}
+          />
+        </Modal>
 
         <section>
           <table className="w-full border-collapse text-left">
@@ -396,15 +388,9 @@ export default function Users() {
         />
       )}
 
-      {deleting && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setDeleting(null)}
-        >
-          <div
-            className="bg-white border border-gray-300 rounded-xl shadow-xl max-w-sm w-full mx-4 p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
+      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="Delete admin" maxWidth="max-w-sm">
+        {deleting && (
+          <>
             <p className="m-0 mb-2 text-gray-800">
               Delete <strong>{deleting.email}</strong>? This cannot be undone.
             </p>
@@ -432,9 +418,9 @@ export default function Users() {
                 Cancel
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

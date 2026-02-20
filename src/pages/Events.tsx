@@ -5,7 +5,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 import { ImageUploadField } from '../components/ImageUploadField';
 import PageShell from '../components/PageShell';
+import Modal from '../components/Modal';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
+
+function slugFromTitle(title: string): string {
+  return title
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || 'event';
+}
 
 export default function Events() {
   const queryClient = useQueryClient();
@@ -50,9 +61,14 @@ export default function Events() {
     setSaving(true);
     setSaveError(null);
     try {
+      const title = form.title.trim();
+      const slug =
+        adding && !editing
+          ? (slugFromTitle(title) || 'event')
+          : form.slug.trim();
       const body = {
-        slug: form.slug.trim(),
-        title: form.title.trim(),
+        slug,
+        title,
         description: form.description.trim(),
         image: form.image.trim(),
         eventDate: form.eventDate || undefined,
@@ -87,96 +103,110 @@ export default function Events() {
     <PageShell
       title="Events"
       action={
-        !adding && !editing ? (
-          <button
-            type="button"
-            onClick={openAdd}
-            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
-          >
-            Add event
-          </button>
-        ) : undefined
+        <button
+          type="button"
+          onClick={openAdd}
+          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
+        >
+          Add event
+        </button>
       }
     >
-        {(adding || editing) && (
-          <section className="mb-6">
-            <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
-              {editing ? 'Edit event' : 'Add event'}
-            </h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-[560px]">
-              <label>
-                <span className={labelClass}>Slug</span>
-                <input
-                  type="text"
-                  value={form.slug}
-                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                  required
-                  className={inputClass}
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Title</span>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  required
-                  className={inputClass}
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Description</span>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  rows={3}
-                  className={`${inputClass} resize-y`}
-                />
-              </label>
-              <ImageUploadField
-                label="Image"
-                hint="Upload via ImageKit or paste URL."
-                value={form.image}
-                onChange={(url) => setForm((f) => ({ ...f, image: url }))}
+        <Modal
+          open={adding || !!editing}
+          onClose={closeForm}
+          title={editing ? 'Edit event' : 'Add event'}
+          maxWidth="max-w-lg"
+        >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <label>
+              <span className={labelClass}>Slug</span>
+              <input
+                type="text"
+                value={form.slug}
+                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                readOnly={!!adding && !editing}
+                required
+                className={`${inputClass} ${adding && !editing ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                title={adding && !editing ? 'Slug is generated from the title' : undefined}
               />
-              <label>
-                <span className={labelClass}>Event date (optional)</span>
-                <input
-                  type="date"
-                  value={form.eventDate}
-                  onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))}
-                  className={inputClass}
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Location (optional)</span>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
-                  className={inputClass}
-                />
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={saving || !form.slug.trim() || !form.title.trim()}
-                  className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
-                >
-                  {saving ? 'Saving…' : 'Save'}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  className={cancelBtnClass}
-                >
-                  Cancel
-                </button>
-              </div>
-              {saveError && <p className="m-0 text-sm text-red-600">{saveError}</p>}
-            </form>
-          </section>
-        )}
+              {adding && !editing && (
+                <span className="text-xs text-gray-500 mt-0.5 block">Generated from title</span>
+              )}
+            </label>
+            <label>
+              <span className={labelClass}>Title</span>
+              <input
+                type="text"
+                value={form.title}
+                onChange={(e) => {
+                  const title = e.target.value;
+                  setForm((f) => ({
+                    ...f,
+                    title,
+                    ...(adding && !editing ? { slug: slugFromTitle(title) } : {}),
+                  }));
+                }}
+                required
+                className={inputClass}
+              />
+            </label>
+            <label>
+              <span className={labelClass}>Description</span>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                rows={3}
+                className={`${inputClass} resize-y`}
+              />
+            </label>
+            <ImageUploadField
+              label="Image"
+              hint="Upload via ImageKit or paste URL."
+              value={form.image}
+              onChange={(url) => setForm((f) => ({ ...f, image: url }))}
+            />
+            <label>
+              <span className={labelClass}>Event date (optional)</span>
+              <input
+                type="date"
+                value={form.eventDate}
+                onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))}
+                className={inputClass}
+              />
+            </label>
+            <label>
+              <span className={labelClass}>Location (optional)</span>
+              <input
+                type="text"
+                value={form.location}
+                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                className={inputClass}
+              />
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={
+                saving ||
+                !form.title.trim() ||
+                (!(adding && !editing) && !form.slug.trim())
+              }
+                className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
+              >
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+              <button
+                type="button"
+                onClick={closeForm}
+                className={cancelBtnClass}
+              >
+                Cancel
+              </button>
+            </div>
+            {saveError && <p className="m-0 text-sm text-red-600">{saveError}</p>}
+          </form>
+        </Modal>
 
         <section className="mb-8">
           <h2 className="m-0 mb-4 text-base font-semibold text-gray-500 uppercase tracking-wider">
