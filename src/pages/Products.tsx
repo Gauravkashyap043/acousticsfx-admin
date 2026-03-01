@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useProductsList } from '../hooks/useProductsList';
 import { useCategoriesList } from '../hooks/useCategoriesList';
 import {
@@ -12,17 +12,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { CategoryItem } from '../api/categories';
 import Modal from '../components/Modal';
 import { ImageUploadField } from '../components/ImageUploadField';
-import { uploadImage } from '../api/upload';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
-const emptySubProduct: SubProduct = {
-  slug: '',
-  title: '',
-  description: '',
-  image: '',
-};
+const DEFAULT_PANELS_TITLE = 'OUR ACOUSTIC PANELS';
+const DEFAULT_PANELS_DESCRIPTION =
+  'A premium workspace faced disruptive noise and poor sound clarity. We designed and installed bespoke acoustic panels tailored to their architecture. The result: enhanced productivity, elegant aesthetics, and a healthier environment. Proof that purposeful design delivers measurable impact.';
 
 function ProductForm({
   product,
@@ -44,6 +40,8 @@ function ProductForm({
     subProducts: SubProduct[];
     categorySlug?: string;
     order: number;
+    panelsSectionTitle?: string;
+    panelsSectionDescription?: string;
   }) => void;
   onCancel: () => void;
   isSaving: boolean;
@@ -57,49 +55,12 @@ function ProductForm({
   const [heroImage, setHeroImage] = useState(product?.heroImage ?? '');
   const [categorySlug, setCategorySlug] = useState(product?.categorySlug ?? '');
   const [order, setOrder] = useState(product?.order ?? 0);
-  const [subProducts, setSubProducts] = useState<SubProduct[]>(
-    product?.subProducts?.length ? [...product.subProducts] : []
+  const [panelsSectionTitle, setPanelsSectionTitle] = useState(
+    product?.panelsSectionTitle ?? DEFAULT_PANELS_TITLE
   );
-  const subProductFileRef = useRef<HTMLInputElement>(null);
-  const subProductUploadRowRef = useRef<number | null>(null);
-  const [subProductUploading, setSubProductUploading] = useState(false);
-
-  const addSub = () => {
-    setSubProducts((prev) => [...prev, { ...emptySubProduct }]);
-  };
-
-  const updateSub = (index: number, field: keyof SubProduct, value: string) => {
-    setSubProducts((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
-  };
-
-  const removeSub = (index: number) => {
-    setSubProducts((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubProductFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    const idx = subProductUploadRowRef.current;
-    subProductUploadRowRef.current = null;
-    if (!file || idx == null) return;
-    if (!file.type.startsWith('image/')) {
-      alert('Please choose an image (JPEG, PNG, GIF, WebP, or AVIF).');
-      return;
-    }
-    setSubProductUploading(true);
-    try {
-      const { url } = await uploadImage(file);
-      updateSub(idx, 'image', url);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Upload failed');
-    } finally {
-      setSubProductUploading(false);
-    }
-  };
+  const [panelsSectionDescription, setPanelsSectionDescription] = useState(
+    product?.panelsSectionDescription ?? DEFAULT_PANELS_DESCRIPTION
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,9 +70,11 @@ function ProductForm({
       description: description.trim(),
       image: image.trim(),
       heroImage: heroImage.trim() || undefined,
-      subProducts: subProducts.filter((s) => s.slug.trim()),
+      subProducts: product?.subProducts ?? [],
       categorySlug: categorySlug.trim() || undefined,
       order,
+      panelsSectionTitle: panelsSectionTitle.trim() || undefined,
+      panelsSectionDescription: panelsSectionDescription.trim() || undefined,
     });
   };
 
@@ -192,76 +155,35 @@ function ProductForm({
             className={inputClass}
           />
         </label>
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Sub-products</span>
-            <button
-              type="button"
-              onClick={addSub}
-              className="py-1 px-2 text-sm text-primary-400 hover:underline"
-            >
-              Add row
-            </button>
-          </div>
+        <label>
+          <span className={labelClass}>Panels section title</span>
           <input
-            ref={subProductFileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
-            className="hidden"
-            onChange={handleSubProductFile}
+            type="text"
+            value={panelsSectionTitle}
+            onChange={(e) => setPanelsSectionTitle(e.target.value)}
+            placeholder={DEFAULT_PANELS_TITLE}
+            className={inputClass}
           />
-          {subProducts.map((sub, i) => (
-            <div
-              key={i}
-              className="border border-gray-300 p-2 mb-2 grid grid-cols-[1fr_1fr_2fr_auto_auto] gap-2 items-center rounded-lg"
-            >
-              <input
-                placeholder="slug"
-                value={sub.slug}
-                onChange={(e) => updateSub(i, 'slug', e.target.value)}
-                className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
-              />
-              <input
-                placeholder="title"
-                value={sub.title}
-                onChange={(e) => updateSub(i, 'title', e.target.value)}
-                className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
-              />
-              <input
-                placeholder="description"
-                value={sub.description}
-                onChange={(e) => updateSub(i, 'description', e.target.value)}
-                className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900"
-              />
-              <div className="flex gap-1 items-center flex-wrap">
-                {sub.image && (
-                  <img src={sub.image} alt="" className="h-8 w-8 rounded object-cover border border-gray-300 shrink-0" />
-                )}
-                <button
-                  type="button"
-                  onClick={() => { subProductUploadRowRef.current = i; subProductFileRef.current?.click(); }}
-                  disabled={subProductUploading}
-                  className="py-1 px-2 text-sm font-medium text-primary-400 hover:underline cursor-pointer disabled:opacity-50"
-                >
-                  {subProductUploading ? 'Uploading…' : 'Upload'}
-                </button>
-                <input
-                  placeholder="image URL"
-                  value={sub.image}
-                  onChange={(e) => updateSub(i, 'image', e.target.value)}
-                  className="py-1 px-2 text-sm bg-gray-50 border border-gray-300 rounded text-gray-900 flex-1 min-w-0"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => removeSub(i)}
-                className="py-1 px-2 text-sm text-red-600 hover:underline cursor-pointer"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
+          <p className="m-0 mt-1 text-xs text-gray-500">
+            Heading for the &quot;Our Acoustic Panels&quot; block on the product page (e.g. OUR ACOUSTIC PANELS).
+          </p>
+        </label>
+        <label>
+          <span className={labelClass}>Panels section description</span>
+          <textarea
+            value={panelsSectionDescription}
+            onChange={(e) => setPanelsSectionDescription(e.target.value)}
+            rows={4}
+            placeholder={DEFAULT_PANELS_DESCRIPTION}
+            className={`${inputClass} resize-y`}
+          />
+          <p className="m-0 mt-1 text-xs text-gray-500">
+            Body copy shown below the title in that section.
+          </p>
+        </label>
+        <p className="m-0 text-xs text-gray-500">
+          Manage sub-products (e.g. linearlux, acoperf) from the <strong>Sub-products</strong> section in the sidebar.
+        </p>
         <div className="flex gap-2">
           <button
             type="submit"
