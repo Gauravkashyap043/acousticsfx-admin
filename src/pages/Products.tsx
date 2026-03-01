@@ -87,7 +87,7 @@ function ProductForm({
     subProductUploadRowRef.current = null;
     if (!file || idx == null) return;
     if (!file.type.startsWith('image/')) {
-      alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+      alert('Please choose an image (JPEG, PNG, GIF, WebP, or AVIF).');
       return;
     }
     setSubProductUploading(true);
@@ -206,7 +206,7 @@ function ProductForm({
           <input
             ref={subProductFileRef}
             type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp"
+            accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
             className="hidden"
             onChange={handleSubProductFile}
           />
