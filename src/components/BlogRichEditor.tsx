@@ -49,7 +49,7 @@ export function BlogRichEditor({ value, onChange }: BlogRichEditorProps) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file?.type.startsWith('image/')) {
-      alert('Please choose an image file (JPEG, PNG, GIF, or WebP).');
+      alert('Please choose an image file (JPEG, PNG, GIF, WebP, or AVIF).');
       return;
     }
     try {
@@ -69,7 +69,7 @@ export function BlogRichEditor({ value, onChange }: BlogRichEditorProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/gif,image/webp"
+        accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
         className="hidden"
         onChange={handleImageUpload}
       />

@@ -19,7 +19,7 @@ export function ImageUploadField({ label, hint, value, onChange }: ImageUploadFi
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+      alert('Please choose an image (JPEG, PNG, GIF, WebP, or AVIF).');
       return;
     }
     e.target.value = '';
@@ -51,7 +51,7 @@ export function ImageUploadField({ label, hint, value, onChange }: ImageUploadFi
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp"
+            accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
             className="hidden"
             onChange={handleFile}
           />
