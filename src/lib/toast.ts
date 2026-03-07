@@ -2,6 +2,7 @@ import { toast as sonnerToast } from 'sonner';
 import { ApiError } from './api';
 
 export const toast = {
+  ...sonnerToast,
   error: (err: unknown) => {
     const message =
       err instanceof ApiError
@@ -12,5 +13,4 @@ export const toast = {
     sonnerToast.error(message);
   },
   success: (message: string) => sonnerToast.success(message),
-  ...sonnerToast,
 };

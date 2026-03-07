@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLoginMutation } from '../hooks/useLoginMutation';
-import { useSignupMutation } from '../hooks/useSignupMutation';
+import { useSignupMutation } from '../hooks/useSignUpMutation';
 
 type Mode = 'login' | 'signup';
 

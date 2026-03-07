@@ -13,6 +13,14 @@ import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="m-0 mt-4 mb-2 text-sm font-semibold text-gray-600 border-b border-gray-200 pb-1 first:mt-0">
+      {children}
+    </h3>
+  );
+}
+
 function CategoryForm({
   category,
   onSave,
@@ -28,6 +36,9 @@ function CategoryForm({
     description?: string;
     image?: string;
     order: number;
+    tagline?: string;
+    metaTitle?: string;
+    metaDescription?: string;
   }) => void;
   onCancel: () => void;
   isSaving: boolean;
@@ -36,9 +47,12 @@ function CategoryForm({
 }) {
   const [slug, setSlug] = useState(category?.slug ?? '');
   const [name, setName] = useState(category?.name ?? '');
+  const [tagline, setTagline] = useState(category?.tagline ?? '');
   const [description, setDescription] = useState(category?.description ?? '');
   const [image, setImage] = useState(category?.image ?? '');
   const [order, setOrder] = useState(category?.order ?? 0);
+  const [metaTitle, setMetaTitle] = useState(category?.metaTitle ?? '');
+  const [metaDescription, setMetaDescription] = useState(category?.metaDescription ?? '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +62,9 @@ function CategoryForm({
       description: description.trim() || undefined,
       image: image.trim() || undefined,
       order,
+      tagline: tagline.trim() || undefined,
+      metaTitle: metaTitle.trim() || undefined,
+      metaDescription: metaDescription.trim() || undefined,
     });
   };
 
@@ -58,7 +75,8 @@ function CategoryForm({
           {category ? 'Edit category' : 'Add category'}
         </h2>
       )}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-h-[80vh] overflow-y-auto pr-1">
+        <SectionHeading>Basic info</SectionHeading>
         <label>
           <span className={labelClass}>Slug</span>
           <input
@@ -85,20 +103,35 @@ function CategoryForm({
           />
         </label>
         <label>
+          <span className={labelClass}>Tagline (optional)</span>
+          <input
+            type="text"
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="Short line under the category name"
+            className={inputClass}
+          />
+        </label>
+        <label>
           <span className={labelClass}>Description (optional)</span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={2}
+            rows={4}
+            placeholder="Full category description for the category page."
             className={`${inputClass} resize-y`}
           />
         </label>
+
+        <SectionHeading>Media</SectionHeading>
         <ImageUploadField
           label="Image (optional)"
-          hint="Upload via ImageKit or paste URL."
+          hint="Upload via ImageKit or paste URL. Shown on category cards and hero."
           value={image}
           onChange={setImage}
         />
+
+        <SectionHeading>Display order</SectionHeading>
         <label>
           <span className={labelClass}>Order</span>
           <input
@@ -107,8 +140,32 @@ function CategoryForm({
             onChange={(e) => setOrder(Number(e.target.value) || 0)}
             className={inputClass}
           />
+          <p className="m-0 mt-1 text-xs text-gray-500">Lower numbers appear first in nav and lists.</p>
         </label>
-        <div className="flex gap-2">
+
+        <SectionHeading>SEO (optional)</SectionHeading>
+        <label>
+          <span className={labelClass}>Meta title</span>
+          <input
+            type="text"
+            value={metaTitle}
+            onChange={(e) => setMetaTitle(e.target.value)}
+            placeholder="Leave blank to use category name"
+            className={inputClass}
+          />
+        </label>
+        <label>
+          <span className={labelClass}>Meta description</span>
+          <textarea
+            value={metaDescription}
+            onChange={(e) => setMetaDescription(e.target.value)}
+            rows={2}
+            placeholder="For search results; 150–160 chars recommended."
+            className={`${inputClass} resize-y`}
+          />
+        </label>
+
+        <div className="flex gap-2 pt-2">
           <button
             type="submit"
             disabled={isSaving || !slug.trim() || !name.trim()}
@@ -198,7 +255,7 @@ export default function Categories() {
           open={adding}
           onClose={() => { setAdding(false); setSaveError(null); }}
           title="Add category"
-          maxWidth="max-w-lg"
+          maxWidth="max-w-xl"
         >
           <CategoryForm
             category={null}
@@ -213,7 +270,7 @@ export default function Categories() {
           open={!!editing}
           onClose={() => { setEditing(null); setSaveError(null); }}
           title={editing ? `Edit: ${editing.name}` : ''}
-          maxWidth="max-w-lg"
+          maxWidth="max-w-xl"
         >
           {editing && (
             <CategoryForm
@@ -241,6 +298,7 @@ export default function Categories() {
                     <th className="py-2 px-3">Image</th>
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Name</th>
+                    <th className="py-2 px-3">Tagline</th>
                     <th className="py-2 px-3">Description</th>
                     <th className="py-2 px-3">Order</th>
                     <th className="py-2 px-3"></th>
@@ -261,6 +319,7 @@ export default function Categories() {
                       </td>
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.name}</td>
+                      <td className="py-2 px-3 text-gray-500 max-w-[140px] truncate">{item.tagline || '—'}</td>
                       <td className="py-2 px-3 text-gray-500 max-w-[200px] truncate">
                         {item.description || '—'}
                       </td>

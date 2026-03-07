@@ -7,6 +7,9 @@ export interface CategoryItem {
   description?: string;
   image?: string;
   order: number;
+  tagline?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -25,6 +28,9 @@ export function createCategory(body: {
   description?: string;
   image?: string;
   order?: number;
+  tagline?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }): Promise<CategoryItem> {
   return request<CategoryItem>('/api/admin/categories', {
     method: 'POST',
@@ -40,6 +46,9 @@ export function updateCategory(
     description?: string;
     image?: string;
     order?: number;
+    tagline?: string;
+    metaTitle?: string;
+    metaDescription?: string;
   }
 ): Promise<CategoryItem> {
   return request<CategoryItem>(`/api/admin/categories/${id}`, {
