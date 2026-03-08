@@ -1,6 +1,6 @@
 import { getToken } from '../lib/api';
 
-const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'https://api.themoonlit.in';
 
 export interface UploadImageResponse {
   url: string;
