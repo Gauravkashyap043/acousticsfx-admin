@@ -31,7 +31,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 function SubProductForm({
-  productId,
+  productId: _productId,
   productTitle,
   initial,
   onSave,

@@ -12,7 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { CategoryItem } from '../api/categories';
 import Modal from '../components/Modal';
 import { ImageUploadField } from '../components/ImageUploadField';
-import { inputClass, labelClass, cancelBtnClass, deleteBtnClass } from '../lib/styles';
+import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 import { Link } from 'react-router-dom';
