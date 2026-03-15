@@ -120,21 +120,6 @@ export default function Events() {
         >
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <label>
-              <span className={labelClass}>Slug</span>
-              <input
-                type="text"
-                value={form.slug}
-                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                readOnly={!!adding && !editing}
-                required
-                className={`${inputClass} ${adding && !editing ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                title={adding && !editing ? 'Slug is generated from the title' : undefined}
-              />
-              {adding && !editing && (
-                <span className="text-xs text-gray-500 mt-0.5 block">Generated from title</span>
-              )}
-            </label>
-            <label>
               <span className={labelClass}>Title</span>
               <input
                 type="text"
@@ -187,11 +172,7 @@ export default function Events() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={
-                saving ||
-                !form.title.trim() ||
-                (!(adding && !editing) && !form.slug.trim())
-              }
+                disabled={saving || !form.title.trim()}
                 className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
               >
                 {saving ? 'Saving…' : 'Save'}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLoginMutation } from '../hooks/useLoginMutation';
 import { useSignupMutation } from '../hooks/useSignUpMutation';
@@ -14,6 +15,8 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const loginMutation = useLoginMutation();
   const signUpMutation = useSignupMutation();
@@ -100,28 +103,48 @@ export default function Login() {
           </label>
           <label className="flex flex-col gap-2">
             <span className="text-sm font-medium text-gray-600">Password</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              disabled={isPending}
-              className="py-2.5 px-3.5 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                disabled={isPending}
+                className="w-full py-2.5 pl-3.5 pr-11 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((p) => !p)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-primary-400/30"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </label>
           {mode === 'signup' && (
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-gray-600">Confirm password</span>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="new-password"
-                disabled={isPending}
-                className="py-2.5 px-3.5 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  disabled={isPending}
+                  className="w-full py-2.5 pl-3.5 pr-11 text-base text-gray-900 bg-gray-50 border border-gray-200 rounded-lg outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 placeholder:text-gray-400 disabled:opacity-60"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((p) => !p)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-primary-400/30"
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </label>
           )}
           <button

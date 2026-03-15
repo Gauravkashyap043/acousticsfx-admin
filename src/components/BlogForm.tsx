@@ -1,16 +1,7 @@
 import { BlogRichEditor } from './BlogRichEditor';
 import { ImageUploadField } from './ImageUploadField';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
-
-function slugify(text: string): string {
-  return text
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
+import { slugify } from '../lib/slugify';
 
 export interface BlogFormState {
   slug: string;
@@ -37,7 +28,7 @@ interface BlogFormProps {
   saveError: string | null;
   /** Unique key for the rich editor (e.g. editing._id or 'new') so it remounts when switching add/edit */
   editorKey: string;
-  /** When true, slug is auto-generated from title as the user types (add mode) */
+  /** When true, slug is auto-generated from title (add mode). When false, existing slug is kept (edit mode). */
   autoSlugFromTitle?: boolean;
 }
 
@@ -60,11 +51,6 @@ export function BlogForm({
     });
   };
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
-    setForm((f) => ({ ...f, slug: v }));
-  };
-
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <label>
@@ -76,20 +62,6 @@ export function BlogForm({
           required
           className={inputClass}
           placeholder="Your blog title"
-        />
-      </label>
-      <label>
-        <span className={labelClass}>URL slug</span>
-        <p className="text-xs text-gray-500 mb-1">
-          {autoSlugFromTitle ? 'Generated from title. You can edit if needed.' : 'Used in the article link. Use lowercase letters, numbers and hyphens only.'}
-        </p>
-        <input
-          type="text"
-          value={form.slug}
-          onChange={handleSlugChange}
-          required
-          className={inputClass}
-          placeholder="my-article-name"
         />
       </label>
       <label>

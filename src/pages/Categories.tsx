@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
 import { ImageUploadField } from '../components/ImageUploadField';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import { slugify } from '../lib/slugify';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
@@ -45,7 +46,7 @@ function CategoryForm({
   error: string | null;
   hideTitle?: boolean;
 }) {
-  const [slug, setSlug] = useState(category?.slug ?? '');
+  const [slug] = useState(category?.slug ?? '');
   const [name, setName] = useState(category?.name ?? '');
   const [tagline, setTagline] = useState(category?.tagline ?? '');
   const [description, setDescription] = useState(category?.description ?? '');
@@ -54,10 +55,11 @@ function CategoryForm({
   const [metaTitle, setMetaTitle] = useState(category?.metaTitle ?? '');
   const [metaDescription, setMetaDescription] = useState(category?.metaDescription ?? '');
 
+  const isNew = !category?._id;
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
-      slug: slug.trim(),
+      slug: (isNew ? slugify(name.trim()) : slug).trim(),
       name: name.trim(),
       description: description.trim() || undefined,
       image: image.trim() || undefined,
@@ -77,20 +79,6 @@ function CategoryForm({
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-h-[80vh] overflow-y-auto pr-1">
         <SectionHeading>Basic info</SectionHeading>
-        <label>
-          <span className={labelClass}>Slug</span>
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="e.g. acoustic"
-            required
-            className={inputClass}
-          />
-          <p className="m-0 mt-1 text-xs text-gray-500">
-            Used in URLs: /products/{slug || '…'}
-          </p>
-        </label>
         <label>
           <span className={labelClass}>Name</span>
           <input
@@ -168,7 +156,7 @@ function CategoryForm({
         <div className="flex gap-2 pt-2">
           <button
             type="submit"
-            disabled={isSaving || !slug.trim() || !name.trim()}
+            disabled={isSaving || !name.trim() || (isNew ? !slugify(name.trim()) : !slug.trim())}
             className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}

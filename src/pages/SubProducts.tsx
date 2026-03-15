@@ -19,6 +19,7 @@ import { listProducts } from '../api/products';
 import { uploadImage } from '../api/upload';
 import Modal from '../components/Modal';
 import { inputClass, labelClass, cancelBtnClass, deleteBtnClass } from '../lib/styles';
+import { slugify } from '../lib/slugify';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 
@@ -49,8 +50,10 @@ function SubProductForm({
   error: string | null;
   hideTitle?: boolean;
 }) {
-  const [slug, setSlug] = useState(initial?.slug ?? '');
+  const [slug] = useState(initial?.slug ?? '');
   const [title, setTitle] = useState(initial?.title ?? '');
+  const isNew = !initial;
+  const effectiveSlug = isNew ? slugify(title.trim()) : slug;
   const [description, setDescription] = useState(initial?.description ?? '');
   const [image, setImage] = useState(initial?.image ?? '');
   const [gridIntroTitle, setGridIntroTitle] = useState(initial?.gridIntro?.title ?? '');
@@ -66,7 +69,13 @@ function SubProductForm({
         : [])
   );
   const fileRef = useRef<HTMLInputElement>(null);
+  const gridFileRef = useRef<HTMLInputElement>(null);
+  const substrateFileRef = useRef<HTMLInputElement>(null);
+  const finishFileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingGridIndex, setPendingGridIndex] = useState<number | null>(null);
+  const [pendingSubstrateIndex, setPendingSubstrateIndex] = useState<number | null>(null);
+  const [pendingFinishIndex, setPendingFinishIndex] = useState<number | null>(null);
 
   // Substrates state
   type SubstrateItem = NonNullable<SubProductSubstratesSection['items']>[number];
@@ -176,6 +185,66 @@ function SubProductForm({
     }
   };
 
+  const handleGridImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (pendingGridIndex == null || !file?.type.startsWith('image/')) {
+      if (pendingGridIndex != null && file && !file.type.startsWith('image/')) {
+        alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+      }
+      setPendingGridIndex(null);
+      return;
+    }
+    const i = pendingGridIndex;
+    setPendingGridIndex(null);
+    try {
+      const { url } = await uploadImage(file);
+      updateGridImage(i, 'url', url);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    }
+  };
+
+  const handleSubstrateImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (pendingSubstrateIndex == null || !file?.type.startsWith('image/')) {
+      if (pendingSubstrateIndex != null && file && !file.type.startsWith('image/')) {
+        alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+      }
+      setPendingSubstrateIndex(null);
+      return;
+    }
+    const i = pendingSubstrateIndex;
+    setPendingSubstrateIndex(null);
+    try {
+      const { url } = await uploadImage(file);
+      updateSubstrate(i, 'image', url);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    }
+  };
+
+  const handleFinishImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (pendingFinishIndex == null || !file?.type.startsWith('image/')) {
+      if (pendingFinishIndex != null && file && !file.type.startsWith('image/')) {
+        alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+      }
+      setPendingFinishIndex(null);
+      return;
+    }
+    const i = pendingFinishIndex;
+    setPendingFinishIndex(null);
+    try {
+      const { url } = await uploadImage(file);
+      updateFinish(i, 'image', url);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const gridIntro: SubProductGridIntro | undefined =
@@ -209,7 +278,7 @@ function SubProductForm({
       }))
       .filter((f) => f.name && f.image);
     const body: SubProduct = {
-      slug: slug.trim(),
+      slug: (isNew ? slugify(title.trim()) : slug).trim(),
       title: title.trim(),
       description: description.trim(),
       image: image.trim(),
@@ -263,31 +332,20 @@ function SubProductForm({
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-h-[85vh] overflow-y-auto pr-1">
         <SectionHeading>Basic info</SectionHeading>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label>
-            <span className={labelClass}>Slug</span>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="e.g. linearlux"
-              required
-              className={inputClass}
-            />
-            <p className="m-0 mt-1 text-xs text-gray-500">Used in URL: …/product-slug/{slug || '…'}</p>
-          </label>
-          <label>
-            <span className={labelClass}>Title</span>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Linearlux"
-              required
-              className={inputClass}
-            />
-          </label>
-        </div>
+        <label>
+          <span className={labelClass}>Title</span>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Linearlux"
+            required
+            className={inputClass}
+          />
+          {isNew && effectiveSlug && (
+            <p className="m-0 mt-1 text-xs text-gray-500">URL slug will be: <span className="font-mono">{effectiveSlug}</span></p>
+          )}
+        </label>
         <label>
           <span className={labelClass}>Description</span>
           <textarea
@@ -366,14 +424,31 @@ function SubProductForm({
               + Add image
             </button>
           </div>
+          <input
+            type="file"
+            ref={gridFileRef}
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={handleGridImageFile}
+          />
           {gridImages.map((img, i) => (
-            <div key={i} className="flex gap-2 items-center mb-1">
+            <div key={i} className="flex gap-2 items-center mb-2 flex-wrap">
+              {img.url ? (
+                <img src={img.url} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
+              ) : null}
               <input
-                placeholder="URL"
+                placeholder="Image URL or upload"
                 value={img.url}
                 onChange={(e) => updateGridImage(i, 'url', e.target.value)}
-                className={`${inputClass} flex-1 text-sm`}
+                className={`${inputClass} flex-1 min-w-[120px] text-sm`}
               />
+              <button
+                type="button"
+                onClick={() => { setPendingGridIndex(i); gridFileRef.current?.click(); }}
+                className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
+              >
+                Upload
+              </button>
               <input
                 placeholder="Alt text"
                 value={img.alt ?? ''}
@@ -454,8 +529,15 @@ function SubProductForm({
               + Add substrate
             </button>
           </div>
+          <input
+            type="file"
+            ref={substrateFileRef}
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={handleSubstrateImageFile}
+          />
           {substrateItems.map((item, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 border border-gray-200 rounded-lg p-3 bg-gray-50/50">
               <input
                 placeholder="Name (e.g. MOISTURE RESISTANT MDF)"
                 value={item.name}
@@ -468,23 +550,35 @@ function SubProductForm({
                 onChange={(e) => updateSubstrate(i, 'thickness', e.target.value)}
                 className={`${inputClass} text-sm`}
               />
-              <input
-                placeholder="Image URL"
-                value={item.image ?? ''}
-                onChange={(e) => updateSubstrate(i, 'image', e.target.value)}
-                className={`${inputClass} text-sm`}
-              />
+              <div className="flex gap-2 items-center flex-wrap md:col-span-2">
+                {item.image ? (
+                  <img src={item.image} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
+                ) : null}
+                <input
+                  placeholder="Image URL or upload"
+                  value={item.image ?? ''}
+                  onChange={(e) => updateSubstrate(i, 'image', e.target.value)}
+                  className={`${inputClass} text-sm flex-1 min-w-0`}
+                />
+                <button
+                  type="button"
+                  onClick={() => { setPendingSubstrateIndex(i); substrateFileRef.current?.click(); }}
+                  className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
+                >
+                  Upload
+                </button>
+              </div>
               <textarea
                 placeholder="Description (optional)"
                 value={item.description ?? ''}
                 onChange={(e) => updateSubstrate(i, 'description', e.target.value)}
                 rows={2}
-                className={`${inputClass} text-sm md:col-span-3 resize-y`}
+                className={`${inputClass} text-sm md:col-span-4 resize-y`}
               />
               <button
                 type="button"
                 onClick={() => removeSubstrate(i)}
-                className={`${deleteBtnClass} md:col-span-1 mt-1`}
+                className={`${deleteBtnClass} md:col-span-4`}
               >
                 Remove
               </button>
@@ -543,31 +637,50 @@ function SubProductForm({
               + Add finish
             </button>
           </div>
+          <input
+            type="file"
+            ref={finishFileRef}
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={handleFinishImageFile}
+          />
           {finishItems.map((item, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 border border-gray-200 rounded-lg p-3 bg-gray-50/50">
               <input
                 placeholder="Name (e.g. Natural Teak)"
                 value={item.name}
                 onChange={(e) => updateFinish(i, 'name', e.target.value)}
                 className={`${inputClass} text-sm`}
               />
-              <input
-                placeholder="Image URL"
-                value={item.image}
-                onChange={(e) => updateFinish(i, 'image', e.target.value)}
-                className={`${inputClass} text-sm`}
-              />
+              <div className="flex gap-2 items-center flex-wrap md:col-span-2">
+                {item.image ? (
+                  <img src={item.image} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
+                ) : null}
+                <input
+                  placeholder="Image URL or upload"
+                  value={item.image}
+                  onChange={(e) => updateFinish(i, 'image', e.target.value)}
+                  className={`${inputClass} text-sm flex-1 min-w-0`}
+                />
+                <button
+                  type="button"
+                  onClick={() => { setPendingFinishIndex(i); finishFileRef.current?.click(); }}
+                  className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
+                >
+                  Upload
+                </button>
+              </div>
               <textarea
                 placeholder="Description (optional)"
                 value={item.description ?? ''}
                 onChange={(e) => updateFinish(i, 'description', e.target.value)}
                 rows={2}
-                className={`${inputClass} text-sm md:col-span-2 resize-y`}
+                className={`${inputClass} text-sm md:col-span-3 resize-y`}
               />
               <button
                 type="button"
                 onClick={() => removeFinish(i)}
-                className={`${deleteBtnClass} md:col-span-1 mt-1`}
+                className={`${deleteBtnClass} md:col-span-3`}
               >
                 Remove
               </button>
@@ -607,7 +720,7 @@ function SubProductForm({
         <div className="flex gap-2 pt-3 border-t border-gray-200">
           <button
             type="submit"
-            disabled={isSaving || !slug.trim() || !title.trim() || !image.trim()}
+            disabled={isSaving || !title.trim() || !image.trim() || (isNew ? !slugify(title.trim()) : !slug.trim())}
             className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}

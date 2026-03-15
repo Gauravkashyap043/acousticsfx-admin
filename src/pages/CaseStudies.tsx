@@ -8,6 +8,7 @@ import {
 } from '../api/caseStudies';
 import { useQueryClient } from '@tanstack/react-query';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import { slugify } from '../lib/slugify';
 import { ImageUploadField } from '../components/ImageUploadField';
 import PageShell from '../components/PageShell';
 import Modal from '../components/Modal';
@@ -55,8 +56,9 @@ export default function CaseStudies() {
     setSaving(true);
     setSaveError(null);
     try {
+      const slug = editing ? form.slug.trim() : slugify(form.title.trim());
       const body = {
-        slug: form.slug.trim(),
+        slug,
         title: form.title.trim(),
         description: form.description.trim(),
         image: form.image.trim(),
@@ -108,16 +110,6 @@ export default function CaseStudies() {
         >
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <label>
-              <span className={labelClass}>Slug</span>
-              <input
-                type="text"
-                value={form.slug}
-                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                required
-                className={inputClass}
-              />
-            </label>
-            <label>
               <span className={labelClass}>Title</span>
               <input
                 type="text"
@@ -154,7 +146,7 @@ export default function CaseStudies() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={saving || !form.slug.trim() || !form.title.trim()}
+                disabled={saving || !form.title.trim()}
                 className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
               >
                 {saving ? 'Saving…' : 'Save'}

@@ -13,6 +13,7 @@ import type { CategoryItem } from '../api/categories';
 import Modal from '../components/Modal';
 import { ImageUploadField } from '../components/ImageUploadField';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
+import { slugify } from '../lib/slugify';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 import { Link } from 'react-router-dom';
@@ -42,8 +43,10 @@ function ProductForm({
   error: string | null;
   hideTitle?: boolean;
 }) {
-  const [slug, setSlug] = useState(product?.slug ?? '');
+  const [slug] = useState(product?.slug ?? '');
   const [title, setTitle] = useState(product?.title ?? '');
+  const isNew = !product?._id;
+  const effectiveSlug = isNew ? (slugify(title.trim()) || slug) : slug;
   const [shortDescription, setShortDescription] = useState(product?.shortDescription ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [image, setImage] = useState(product?.image ?? '');
@@ -62,7 +65,7 @@ function ProductForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
-      slug: slug.trim(),
+      slug: (isNew ? slugify(title.trim()) : slug).trim(),
       title: title.trim(),
       description: description.trim(),
       image: image.trim(),
@@ -100,21 +103,8 @@ function ProductForm({
           </div>
         ) : null}
         <SectionHeading>Basic info</SectionHeading>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label>
-            <span className={labelClass}>Slug</span>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="e.g. wood-acoustic-panel"
-              required
-              className={inputClass}
-            />
-            <p className="m-0 mt-1 text-xs text-gray-500">Used in URLs: /products/…/{slug || '…'}</p>
-          </label>
-          <label>
-            <span className={labelClass}>Title</span>
+        <label>
+          <span className={labelClass}>Title</span>
             <input
               type="text"
               value={title}
@@ -123,7 +113,9 @@ function ProductForm({
               className={inputClass}
             />
           </label>
-        </div>
+          {isNew && effectiveSlug && (
+            <p className="m-0 text-xs text-gray-500">URL slug will be: <span className="font-mono">{effectiveSlug || '…'}</span></p>
+          )}
         <label>
           <span className={labelClass}>Short description (optional)</span>
           <input
@@ -266,7 +258,7 @@ function ProductForm({
         <div className="flex gap-2 pt-2 border-t border-gray-200">
           <button
             type="submit"
-            disabled={isSaving || !slug.trim() || !title.trim()}
+            disabled={isSaving || !title.trim() || (isNew ? !slugify(title.trim()) : !slug.trim())}
             className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}
