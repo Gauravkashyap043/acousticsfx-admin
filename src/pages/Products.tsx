@@ -12,11 +12,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { CategoryItem } from '../api/categories';
 import Modal from '../components/Modal';
 import { ImageUploadField } from '../components/ImageUploadField';
-import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
-import { slugify } from '../lib/slugify';
+import { inputClass, labelClass, cancelBtnClass, deleteBtnClass } from '../lib/styles';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
 import { Link } from 'react-router-dom';
+import { slugify } from '../lib/slugify';
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -43,10 +43,8 @@ function ProductForm({
   error: string | null;
   hideTitle?: boolean;
 }) {
-  const [slug] = useState(product?.slug ?? '');
   const [title, setTitle] = useState(product?.title ?? '');
-  const isNew = !product?._id;
-  const effectiveSlug = isNew ? (slugify(title.trim()) || slug) : slug;
+  const [showTrademark, setShowTrademark] = useState(product?.showTrademark === true);
   const [shortDescription, setShortDescription] = useState(product?.shortDescription ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [image, setImage] = useState(product?.image ?? '');
@@ -65,7 +63,7 @@ function ProductForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
-      slug: (isNew ? slugify(title.trim()) : slug).trim(),
+      slug: slugify(title.trim()),
       title: title.trim(),
       description: description.trim(),
       image: image.trim(),
@@ -78,6 +76,7 @@ function ProductForm({
       shortDescription: shortDescription.trim() || undefined,
       metaTitle: metaTitle.trim() || undefined,
       metaDescription: metaDescription.trim() || undefined,
+      showTrademark,
     });
   };
 
@@ -105,17 +104,27 @@ function ProductForm({
         <SectionHeading>Basic info</SectionHeading>
         <label>
           <span className={labelClass}>Title</span>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className={inputClass}
-            />
-          </label>
-          {isNew && effectiveSlug && (
-            <p className="m-0 text-xs text-gray-500">URL slug will be: <span className="font-mono">{effectiveSlug || '…'}</span></p>
-          )}
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            className={inputClass}
+          />
+          <p className="m-0 mt-1 text-xs text-gray-500">
+            URL slug (auto): <span className="font-mono">{slugify(title) || '—'}</span> — used as /products/…/
+            {slugify(title) || '…'}
+          </p>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showTrademark}
+            onChange={(e) => setShowTrademark(e.target.checked)}
+            className="rounded border-gray-300"
+          />
+          <span className={labelClass}>Show ™ after product name on the website</span>
+        </label>
         <label>
           <span className={labelClass}>Short description (optional)</span>
           <input
@@ -258,7 +267,7 @@ function ProductForm({
         <div className="flex gap-2 pt-2 border-t border-gray-200">
           <button
             type="submit"
-            disabled={isSaving || !title.trim() || (isNew ? !slugify(title.trim()) : !slug.trim())}
+            disabled={isSaving || !title.trim()}
             className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}

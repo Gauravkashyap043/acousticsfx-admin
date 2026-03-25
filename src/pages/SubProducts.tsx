@@ -12,14 +12,15 @@ import {
   type SubProductSubstratesSection,
   type SubProductAboutTab,
   type SubProductFinishesSection,
+  type SubProductCertification,
 } from '../api/subProducts';
 import { listProducts } from '../api/products';
 import { uploadImage } from '../api/upload';
 import Modal from '../components/Modal';
 import { inputClass, labelClass, cancelBtnClass, deleteBtnClass } from '../lib/styles';
-import { slugify } from '../lib/slugify';
 import PageShell from '../components/PageShell';
 import { EmptyState, ErrorState, InlineLoader } from '../components/EmptyState';
+import { slugify } from '../lib/slugify';
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -30,7 +31,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 function SubProductForm({
-  productId: _productId,
+  productId,
   productTitle,
   initial,
   onSave,
@@ -48,15 +49,22 @@ function SubProductForm({
   error: string | null;
   hideTitle?: boolean;
 }) {
-  const [slug] = useState(initial?.slug ?? '');
   const [title, setTitle] = useState(initial?.title ?? '');
-  const [showTrademark, setShowTrademark] = useState(initial?.showTrademark ?? false);
-  const isNew = !initial;
-  const effectiveSlug = isNew ? slugify(title.trim()) : slug;
+  const [showTrademark, setShowTrademark] = useState(initial?.showTrademark === true);
   const [description, setDescription] = useState(initial?.description ?? '');
   const [image, setImage] = useState(initial?.image ?? '');
+  const [specSectionTitle, setSpecSectionTitle] = useState(initial?.specSectionTitle ?? '');
   const [specDescription, setSpecDescription] = useState(initial?.specDescription ?? '');
   const [specs, setSpecs] = useState<SubProductSpec[]>(initial?.specs ?? []);
+  const [certificationsSectionTitle, setCertificationsSectionTitle] = useState(
+    initial?.certificationsSectionTitle ?? ''
+  );
+  const [certificationsSectionDescription, setCertificationsSectionDescription] = useState(
+    initial?.certificationsSectionDescription ?? ''
+  );
+  const [certificationItems, setCertificationItems] = useState<SubProductCertification[]>(
+    initial?.certifications ?? []
+  );
   const [galleryImages, setGalleryImages] = useState<SubProductGalleryImage[]>(
     initial?.galleryImages ??
       (initial?.gallerySlides?.length
@@ -64,14 +72,10 @@ function SubProductForm({
         : [])
   );
   const fileRef = useRef<HTMLInputElement>(null);
-  const substrateFileRef = useRef<HTMLInputElement>(null);
-  const finishFileRef = useRef<HTMLInputElement>(null);
-  const galleryFileRef = useRef<HTMLInputElement>(null);
+  const certFileRef = useRef<HTMLInputElement>(null);
+  const [certUploadIndex, setCertUploadIndex] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [pendingSubstrateIndex, setPendingSubstrateIndex] = useState<number | null>(null);
-  const [pendingFinishIndex, setPendingFinishIndex] = useState<number | null>(null);
-  const [pendingGalleryIndex, setPendingGalleryIndex] = useState<number | null>(null);
-  const [uploadingGalleryMulti, setUploadingGalleryMulti] = useState(false);
+  const [uploadingCert, setUploadingCert] = useState(false);
 
   // Substrates state
   type SubstrateItem = NonNullable<SubProductSubstratesSection['items']>[number];
@@ -119,6 +123,47 @@ function SubProductForm({
     });
   };
   const removeSpec = (i: number) => setSpecs((prev) => prev.filter((_, j) => j !== i));
+
+  const addCertification = () =>
+    setCertificationItems((prev) => [...prev, { name: '', image: '', description: '' }]);
+  const updateCertification = <K extends keyof SubProductCertification>(
+    i: number,
+    field: K,
+    value: SubProductCertification[K]
+  ) => {
+    setCertificationItems((prev) => {
+      const next = [...prev];
+      next[i] = { ...next[i], [field]: value };
+      return next;
+    });
+  };
+  const removeCertification = (i: number) =>
+    setCertificationItems((prev) => prev.filter((_, idx) => idx !== i));
+
+  const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (certUploadIndex == null || !file?.type.startsWith('image/')) {
+      setCertUploadIndex(null);
+      return;
+    }
+    setUploadingCert(true);
+    try {
+      const { url } = await uploadImage(file);
+      setCertificationItems((prev) => {
+        const next = [...prev];
+        if (next[certUploadIndex]) {
+          next[certUploadIndex] = { ...next[certUploadIndex], image: url };
+        }
+        return next;
+      });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploadingCert(false);
+      setCertUploadIndex(null);
+    }
+  };
 
   const addGalleryImage = () => setGalleryImages((prev) => [...prev, { url: '', alt: '' }]);
   const updateGalleryImage = (i: number, field: 'url' | 'alt', value: string) => {
@@ -171,87 +216,6 @@ function SubProductForm({
     }
   };
 
-  const handleSubstrateImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (pendingSubstrateIndex == null || !file?.type.startsWith('image/')) {
-      if (pendingSubstrateIndex != null && file && !file.type.startsWith('image/')) {
-        alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
-      }
-      setPendingSubstrateIndex(null);
-      return;
-    }
-    const i = pendingSubstrateIndex;
-    setPendingSubstrateIndex(null);
-    try {
-      const { url } = await uploadImage(file);
-      updateSubstrate(i, 'image', url);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Upload failed');
-    }
-  };
-
-  const handleFinishImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (pendingFinishIndex == null || !file?.type.startsWith('image/')) {
-      if (pendingFinishIndex != null && file && !file.type.startsWith('image/')) {
-        alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
-      }
-      setPendingFinishIndex(null);
-      return;
-    }
-    const i = pendingFinishIndex;
-    setPendingFinishIndex(null);
-    try {
-      const { url } = await uploadImage(file);
-      updateFinish(i, 'image', url);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Upload failed');
-    }
-  };
-
-  const handleGalleryImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    e.target.value = '';
-    if (pendingGalleryIndex != null) {
-      const file = files?.[0];
-      if (!file?.type.startsWith('image/')) {
-        if (file) alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
-        setPendingGalleryIndex(null);
-        return;
-      }
-      const i = pendingGalleryIndex;
-      setPendingGalleryIndex(null);
-      try {
-        const { url } = await uploadImage(file);
-        updateGalleryImage(i, 'url', url);
-      } catch (err) {
-        alert(err instanceof Error ? err.message : 'Upload failed');
-      }
-      return;
-    }
-    if (!files?.length) return;
-    const imageFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
-    if (imageFiles.length === 0) {
-      alert('Please choose image(s) (JPEG, PNG, GIF, or WebP).');
-      return;
-    }
-    setUploadingGalleryMulti(true);
-    try {
-      const newImages: SubProductGalleryImage[] = [];
-      for (const file of imageFiles) {
-        const { url } = await uploadImage(file);
-        newImages.push({ url, alt: '' });
-      }
-      setGalleryImages((prev) => [...prev, ...newImages]);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Upload failed');
-    } finally {
-      setUploadingGalleryMulti(false);
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const aboutTabs: SubProductAboutTab[] =
@@ -280,12 +244,22 @@ function SubProductForm({
         image: f.image.trim(),
       }))
       .filter((f) => f.name && f.image);
+    const certificationsClean = certificationItems
+      .map((c) => ({
+        name: c.name.trim(),
+        image: c.image.trim(),
+        description: c.description?.trim() || undefined,
+      }))
+      .filter((c) => c.name && c.image);
     const body: SubProduct = {
-      slug: (isNew ? slugify(title.trim()) : slug).trim(),
+      slug: slugify(title.trim()),
       title: title.trim(),
       description: description.trim(),
       image: image.trim(),
-      ...(showTrademark && { showTrademark: true }),
+      showTrademark,
+      specSectionTitle: specSectionTitle.trim(),
+      certificationsSectionTitle: certificationsSectionTitle.trim(),
+      certificationsSectionDescription: certificationsSectionDescription.trim(),
       ...(specDescription.trim() && { specDescription: specDescription.trim() }),
       ...(specs.filter((s) => s.label.trim() || s.value.trim()).length > 0 && {
         specs: specs
@@ -314,6 +288,7 @@ function SubProductForm({
           items: finishesClean,
         },
       }),
+      certifications: certificationsClean,
     };
     onSave(body);
   };
@@ -342,20 +317,20 @@ function SubProductForm({
             required
             className={inputClass}
           />
-          {isNew && effectiveSlug && (
-            <p className="m-0 mt-1 text-xs text-gray-500">URL slug will be: <span className="font-mono">{effectiveSlug}</span></p>
-          )}
+          <p className="m-0 mt-1 text-xs text-gray-500">
+            URL slug (auto): <span className="font-mono">{slugify(title) || '—'}</span> — …/product/
+            {slugify(title) || '…'}/…
+          </p>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={showTrademark}
             onChange={(e) => setShowTrademark(e.target.checked)}
             className="rounded border-gray-300"
           />
-          <span className={labelClass}>Show trademark (™) after title</span>
+          <span className={labelClass}>Show ™ after sub-product name on the website</span>
         </label>
-        <p className="m-0 -mt-1 text-xs text-gray-500">Check if this sub-product name is trademark registered; the site will display the title with ™.</p>
         <label>
           <span className={labelClass}>Description</span>
           <textarea
@@ -398,6 +373,16 @@ function SubProductForm({
 
         <SectionHeading>Specifications</SectionHeading>
         <label>
+          <span className={labelClass}>Spec section title (optional)</span>
+          <input
+            type="text"
+            value={specSectionTitle}
+            onChange={(e) => setSpecSectionTitle(e.target.value)}
+            placeholder="Defaults to “Product Specification” on the site if empty"
+            className={inputClass}
+          />
+        </label>
+        <label>
           <span className={labelClass}>Spec description (optional)</span>
           <textarea
             value={specDescription}
@@ -434,6 +419,92 @@ function SubProductForm({
           ))}
         </div>
 
+        <SectionHeading>Certifications</SectionHeading>
+        <p className="m-0 text-xs text-gray-500 mb-2">
+          Logo grid on the detail page. Add name + image URL (or upload). Leave empty to hide the block.
+        </p>
+        <label>
+          <span className={labelClass}>Certifications heading (optional)</span>
+          <input
+            type="text"
+            value={certificationsSectionTitle}
+            onChange={(e) => setCertificationsSectionTitle(e.target.value)}
+            placeholder="Defaults to “Certifications” if empty"
+            className={inputClass}
+          />
+        </label>
+        <label>
+          <span className={labelClass}>Certifications intro (optional)</span>
+          <textarea
+            value={certificationsSectionDescription}
+            onChange={(e) => setCertificationsSectionDescription(e.target.value)}
+            rows={2}
+            className={`${inputClass} resize-y`}
+          />
+        </label>
+        <input
+          type="file"
+          ref={certFileRef}
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          className="hidden"
+          onChange={handleCertImageUpload}
+        />
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <span className={labelClass}>Certification logos</span>
+            <button type="button" onClick={addCertification} className="text-xs text-primary-600 hover:underline">
+              + Add certification
+            </button>
+          </div>
+          {certificationItems.map((c, i) => (
+            <div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 items-start">
+              <input
+                placeholder="Name (e.g. FSC® CERTIFIED)"
+                value={c.name}
+                onChange={(e) => updateCertification(i, 'name', e.target.value)}
+                className={`${inputClass} text-sm md:col-span-2`}
+              />
+              <div className="flex gap-1 items-center md:col-span-2">
+                {c.image && (
+                  <img src={c.image} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCertUploadIndex(i);
+                    certFileRef.current?.click();
+                  }}
+                  disabled={uploadingCert}
+                  className="py-1 px-2 text-xs font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 disabled:opacity-50 shrink-0"
+                >
+                  {uploadingCert && certUploadIndex === i ? '…' : 'Upload'}
+                </button>
+                <input
+                  type="url"
+                  placeholder="Image URL"
+                  value={c.image}
+                  onChange={(e) => updateCertification(i, 'image', e.target.value)}
+                  className={`${inputClass} text-sm flex-1 min-w-0`}
+                />
+              </div>
+              <textarea
+                placeholder="Description (optional)"
+                value={c.description ?? ''}
+                onChange={(e) => updateCertification(i, 'description', e.target.value)}
+                rows={2}
+                className={`${inputClass} text-sm md:col-span-3 resize-y`}
+              />
+              <button
+                type="button"
+                onClick={() => removeCertification(i)}
+                className={`${deleteBtnClass} md:col-span-1 mt-1`}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+
         <SectionHeading>Substrates (slider)</SectionHeading>
         <p className="m-0 text-xs text-gray-500 mb-2">
           Optional substrates section below the gallery. Leave blank to use the default design copy.
@@ -463,15 +534,8 @@ function SubProductForm({
               + Add substrate
             </button>
           </div>
-          <input
-            type="file"
-            ref={substrateFileRef}
-            accept="image/jpeg,image/png,image/gif,image/webp"
-            className="hidden"
-            onChange={handleSubstrateImageFile}
-          />
           {substrateItems.map((item, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 border border-gray-200 rounded-lg p-3 bg-gray-50/50">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
               <input
                 placeholder="Name (e.g. MOISTURE RESISTANT MDF)"
                 value={item.name}
@@ -484,35 +548,23 @@ function SubProductForm({
                 onChange={(e) => updateSubstrate(i, 'thickness', e.target.value)}
                 className={`${inputClass} text-sm`}
               />
-              <div className="flex gap-2 items-center flex-wrap md:col-span-2">
-                {item.image ? (
-                  <img src={item.image} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
-                ) : null}
-                <input
-                  placeholder="Image URL or upload"
-                  value={item.image ?? ''}
-                  onChange={(e) => updateSubstrate(i, 'image', e.target.value)}
-                  className={`${inputClass} text-sm flex-1 min-w-0`}
-                />
-                <button
-                  type="button"
-                  onClick={() => { setPendingSubstrateIndex(i); substrateFileRef.current?.click(); }}
-                  className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
-                >
-                  Upload
-                </button>
-              </div>
+              <input
+                placeholder="Image URL"
+                value={item.image ?? ''}
+                onChange={(e) => updateSubstrate(i, 'image', e.target.value)}
+                className={`${inputClass} text-sm`}
+              />
               <textarea
                 placeholder="Description (optional)"
                 value={item.description ?? ''}
                 onChange={(e) => updateSubstrate(i, 'description', e.target.value)}
                 rows={2}
-                className={`${inputClass} text-sm md:col-span-4 resize-y`}
+                className={`${inputClass} text-sm md:col-span-3 resize-y`}
               />
               <button
                 type="button"
                 onClick={() => removeSubstrate(i)}
-                className={`${deleteBtnClass} md:col-span-4`}
+                className={`${deleteBtnClass} md:col-span-1 mt-1`}
               >
                 Remove
               </button>
@@ -571,50 +623,31 @@ function SubProductForm({
               + Add finish
             </button>
           </div>
-          <input
-            type="file"
-            ref={finishFileRef}
-            accept="image/jpeg,image/png,image/gif,image/webp"
-            className="hidden"
-            onChange={handleFinishImageFile}
-          />
           {finishItems.map((item, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 border border-gray-200 rounded-lg p-3 bg-gray-50/50">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
               <input
                 placeholder="Name (e.g. Natural Teak)"
                 value={item.name}
                 onChange={(e) => updateFinish(i, 'name', e.target.value)}
                 className={`${inputClass} text-sm`}
               />
-              <div className="flex gap-2 items-center flex-wrap md:col-span-2">
-                {item.image ? (
-                  <img src={item.image} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
-                ) : null}
-                <input
-                  placeholder="Image URL or upload"
-                  value={item.image}
-                  onChange={(e) => updateFinish(i, 'image', e.target.value)}
-                  className={`${inputClass} text-sm flex-1 min-w-0`}
-                />
-                <button
-                  type="button"
-                  onClick={() => { setPendingFinishIndex(i); finishFileRef.current?.click(); }}
-                  className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
-                >
-                  Upload
-                </button>
-              </div>
+              <input
+                placeholder="Image URL"
+                value={item.image}
+                onChange={(e) => updateFinish(i, 'image', e.target.value)}
+                className={`${inputClass} text-sm`}
+              />
               <textarea
                 placeholder="Description (optional)"
                 value={item.description ?? ''}
                 onChange={(e) => updateFinish(i, 'description', e.target.value)}
                 rows={2}
-                className={`${inputClass} text-sm md:col-span-3 resize-y`}
+                className={`${inputClass} text-sm md:col-span-2 resize-y`}
               />
               <button
                 type="button"
                 onClick={() => removeFinish(i)}
-                className={`${deleteBtnClass} md:col-span-3`}
+                className={`${deleteBtnClass} md:col-span-1 mt-1`}
               >
                 Remove
               </button>
@@ -623,55 +656,26 @@ function SubProductForm({
         </div>
 
         <SectionHeading>Gallery</SectionHeading>
-        <p className="m-0 text-xs text-gray-500 mb-2">
-          Carousel images for the sub-product. Upload one or multiple at a time, or paste URLs.
-        </p>
         <div>
-          <div className="flex flex-wrap gap-2 items-center mb-2">
+          <div className="flex justify-between items-center mb-1">
             <span className={labelClass}>Gallery images</span>
-            <button
-              type="button"
-              onClick={() => { setPendingGalleryIndex(null); galleryFileRef.current?.click(); }}
-              disabled={uploadingGalleryMulti}
-              className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 disabled:opacity-50 shrink-0"
-            >
-              {uploadingGalleryMulti ? 'Uploading…' : 'Upload image(s)'}
-            </button>
-            <input
-              type="file"
-              ref={galleryFileRef}
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              multiple
-              className="hidden"
-              onChange={handleGalleryImageFile}
-            />
             <button type="button" onClick={addGalleryImage} className="text-xs text-primary-600 hover:underline">
-              + Add row (paste URL)
+              + Add image
             </button>
           </div>
           {galleryImages.map((img, i) => (
-            <div key={i} className="flex gap-2 items-center mb-2 flex-wrap border border-gray-200 rounded-lg p-2 bg-gray-50/50">
-              {img.url ? (
-                <img src={img.url} alt="" className="h-12 w-12 rounded object-cover border border-gray-300 shrink-0" />
-              ) : null}
+            <div key={i} className="flex gap-2 items-center mb-1">
               <input
-                placeholder="Image URL or upload"
+                placeholder="Image URL"
                 value={img.url}
                 onChange={(e) => updateGalleryImage(i, 'url', e.target.value)}
-                className={`${inputClass} flex-1 min-w-[120px] text-sm`}
+                className={`${inputClass} flex-1 text-sm`}
               />
-              <button
-                type="button"
-                onClick={() => { setPendingGalleryIndex(i); galleryFileRef.current?.click(); }}
-                className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
-              >
-                Upload
-              </button>
               <input
                 placeholder="Alt text (optional)"
                 value={img.alt ?? ''}
                 onChange={(e) => updateGalleryImage(i, 'alt', e.target.value)}
-                className={`${inputClass} w-36 text-sm`}
+                className={`${inputClass} w-48 text-sm`}
               />
               <button type="button" onClick={() => removeGalleryImage(i)} className={deleteBtnClass}>
                 Remove
@@ -683,7 +687,7 @@ function SubProductForm({
         <div className="flex gap-2 pt-3 border-t border-gray-200">
           <button
             type="submit"
-            disabled={isSaving || !title.trim() || !image.trim() || (isNew ? !slugify(title.trim()) : !slug.trim())}
+            disabled={isSaving || !title.trim() || !image.trim()}
             className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}

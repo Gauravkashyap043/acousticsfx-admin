@@ -78,8 +78,8 @@ export interface SubProduct {
   title: string;
   description: string;
   image: string;
-  /** If true, show "™" after title on the frontend (trademark registered) */
   showTrademark?: boolean;
+  specSectionTitle?: string;
   specDescription?: string;
   specs?: SubProductSpec[];
   /** Deprecated: old shape. Still optional for compatibility. */
@@ -89,6 +89,8 @@ export interface SubProduct {
   profilesSection?: SubProductProfilesSection;
   substratesSection?: SubProductSubstratesSection;
   aboutTabs?: SubProductAboutTab[];
+  certificationsSectionTitle?: string;
+  certificationsSectionDescription?: string;
   certifications?: SubProductCertification[];
   finishesSection?: SubProductFinishesSection;
 }
@@ -108,6 +110,7 @@ export interface ProductItem {
   shortDescription?: string;
   metaTitle?: string;
   metaDescription?: string;
+  showTrademark?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -130,6 +133,7 @@ export type CreateProductBody = {
   shortDescription?: string;
   metaTitle?: string;
   metaDescription?: string;
+  showTrademark?: boolean;
 };
 
 export type UpdateProductBody = CreateProductBody;

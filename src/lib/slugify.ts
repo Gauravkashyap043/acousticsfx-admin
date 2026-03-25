@@ -1,10 +1,12 @@
-/** Generate a URL-safe slug from a title or name (lowercase, hyphens, no special chars). */
-export function slugify(text: string): string {
-  return text
-    .trim()
+/** URL-safe slug from a display title (strips ™ / ® / ©, lowercases, hyphenates). */
+export function slugify(input: string): string {
+  const s = input
+    .replace(/[™®©]/gu, "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'item';
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return s || "item";
 }
