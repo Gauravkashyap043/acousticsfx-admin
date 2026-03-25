@@ -7,8 +7,6 @@ import {
   deleteSubProduct,
   type SubProduct,
   type SubProductListItem,
-  type SubProductGridIntro,
-  type SubProductGridImage,
   type SubProductSpec,
   type SubProductGalleryImage,
   type SubProductSubstratesSection,
@@ -52,14 +50,11 @@ function SubProductForm({
 }) {
   const [slug] = useState(initial?.slug ?? '');
   const [title, setTitle] = useState(initial?.title ?? '');
+  const [showTrademark, setShowTrademark] = useState(initial?.showTrademark ?? false);
   const isNew = !initial;
   const effectiveSlug = isNew ? slugify(title.trim()) : slug;
   const [description, setDescription] = useState(initial?.description ?? '');
   const [image, setImage] = useState(initial?.image ?? '');
-  const [gridIntroTitle, setGridIntroTitle] = useState(initial?.gridIntro?.title ?? '');
-  const [gridIntroSubtitle, setGridIntroSubtitle] = useState(initial?.gridIntro?.subtitle ?? '');
-  const [gridIntroBody, setGridIntroBody] = useState(initial?.gridIntro?.body ?? '');
-  const [gridImages, setGridImages] = useState<SubProductGridImage[]>(initial?.gridImages ?? []);
   const [specDescription, setSpecDescription] = useState(initial?.specDescription ?? '');
   const [specs, setSpecs] = useState<SubProductSpec[]>(initial?.specs ?? []);
   const [galleryImages, setGalleryImages] = useState<SubProductGalleryImage[]>(
@@ -69,13 +64,14 @@ function SubProductForm({
         : [])
   );
   const fileRef = useRef<HTMLInputElement>(null);
-  const gridFileRef = useRef<HTMLInputElement>(null);
   const substrateFileRef = useRef<HTMLInputElement>(null);
   const finishFileRef = useRef<HTMLInputElement>(null);
+  const galleryFileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [pendingGridIndex, setPendingGridIndex] = useState<number | null>(null);
   const [pendingSubstrateIndex, setPendingSubstrateIndex] = useState<number | null>(null);
   const [pendingFinishIndex, setPendingFinishIndex] = useState<number | null>(null);
+  const [pendingGalleryIndex, setPendingGalleryIndex] = useState<number | null>(null);
+  const [uploadingGalleryMulti, setUploadingGalleryMulti] = useState(false);
 
   // Substrates state
   type SubstrateItem = NonNullable<SubProductSubstratesSection['items']>[number];
@@ -113,16 +109,6 @@ function SubProductForm({
     initial?.finishesSection?.description ?? ''
   );
   const [finishItems, setFinishItems] = useState<FinishItem[]>(initial?.finishesSection?.items ?? []);
-
-  const addGridImage = () => setGridImages((prev) => [...prev, { url: '', alt: '' }]);
-  const updateGridImage = (i: number, field: 'url' | 'alt', value: string) => {
-    setGridImages((prev) => {
-      const next = [...prev];
-      next[i] = { ...next[i], [field]: value };
-      return next;
-    });
-  };
-  const removeGridImage = (i: number) => setGridImages((prev) => prev.filter((_, j) => j !== i));
 
   const addSpec = () => setSpecs((prev) => [...prev, { label: '', value: '' }]);
   const updateSpec = (i: number, field: 'label' | 'value', value: string) => {
@@ -185,26 +171,6 @@ function SubProductForm({
     }
   };
 
-  const handleGridImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (pendingGridIndex == null || !file?.type.startsWith('image/')) {
-      if (pendingGridIndex != null && file && !file.type.startsWith('image/')) {
-        alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
-      }
-      setPendingGridIndex(null);
-      return;
-    }
-    const i = pendingGridIndex;
-    setPendingGridIndex(null);
-    try {
-      const { url } = await uploadImage(file);
-      updateGridImage(i, 'url', url);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Upload failed');
-    }
-  };
-
   const handleSubstrateImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -245,12 +211,49 @@ function SubProductForm({
     }
   };
 
+  const handleGalleryImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    e.target.value = '';
+    if (pendingGalleryIndex != null) {
+      const file = files?.[0];
+      if (!file?.type.startsWith('image/')) {
+        if (file) alert('Please choose an image (JPEG, PNG, GIF, or WebP).');
+        setPendingGalleryIndex(null);
+        return;
+      }
+      const i = pendingGalleryIndex;
+      setPendingGalleryIndex(null);
+      try {
+        const { url } = await uploadImage(file);
+        updateGalleryImage(i, 'url', url);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Upload failed');
+      }
+      return;
+    }
+    if (!files?.length) return;
+    const imageFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (imageFiles.length === 0) {
+      alert('Please choose image(s) (JPEG, PNG, GIF, or WebP).');
+      return;
+    }
+    setUploadingGalleryMulti(true);
+    try {
+      const newImages: SubProductGalleryImage[] = [];
+      for (const file of imageFiles) {
+        const { url } = await uploadImage(file);
+        newImages.push({ url, alt: '' });
+      }
+      setGalleryImages((prev) => [...prev, ...newImages]);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploadingGalleryMulti(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const gridIntro: SubProductGridIntro | undefined =
-      gridIntroTitle || gridIntroSubtitle || gridIntroBody
-        ? { title: gridIntroTitle || undefined, subtitle: gridIntroSubtitle || undefined, body: gridIntroBody || undefined }
-        : undefined;
     const aboutTabs: SubProductAboutTab[] =
       aboutTabDefs
         .map((def) => {
@@ -282,10 +285,7 @@ function SubProductForm({
       title: title.trim(),
       description: description.trim(),
       image: image.trim(),
-      ...(gridIntro && { gridIntro }),
-      ...(gridImages.filter((g) => g.url.trim()).length > 0 && {
-        gridImages: gridImages.filter((g) => g.url.trim()).map((g) => ({ url: g.url.trim(), alt: g.alt?.trim() || undefined })),
-      }),
+      ...(showTrademark && { showTrademark: true }),
       ...(specDescription.trim() && { specDescription: specDescription.trim() }),
       ...(specs.filter((s) => s.label.trim() || s.value.trim()).length > 0 && {
         specs: specs
@@ -346,6 +346,16 @@ function SubProductForm({
             <p className="m-0 mt-1 text-xs text-gray-500">URL slug will be: <span className="font-mono">{effectiveSlug}</span></p>
           )}
         </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={showTrademark}
+            onChange={(e) => setShowTrademark(e.target.checked)}
+            className="rounded border-gray-300"
+          />
+          <span className={labelClass}>Show trademark (™) after title</span>
+        </label>
+        <p className="m-0 -mt-1 text-xs text-gray-500">Check if this sub-product name is trademark registered; the site will display the title with ™.</p>
         <label>
           <span className={labelClass}>Description</span>
           <textarea
@@ -385,82 +395,6 @@ function SubProductForm({
             />
           </div>
         </label>
-
-        <SectionHeading>Grid section (detail page)</SectionHeading>
-        <p className="m-0 text-xs text-gray-500">Optional intro and images for the grid block on the sub-product detail page.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label>
-            <span className={labelClass}>Grid intro title</span>
-            <input
-              type="text"
-              value={gridIntroTitle}
-              onChange={(e) => setGridIntroTitle(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-          <label>
-            <span className={labelClass}>Grid intro subtitle</span>
-            <input
-              type="text"
-              value={gridIntroSubtitle}
-              onChange={(e) => setGridIntroSubtitle(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-        </div>
-        <label>
-          <span className={labelClass}>Grid intro body</span>
-          <textarea
-            value={gridIntroBody}
-            onChange={(e) => setGridIntroBody(e.target.value)}
-            rows={2}
-            className={`${inputClass} resize-y`}
-          />
-        </label>
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <span className={labelClass}>Grid images (min 3 for layout)</span>
-            <button type="button" onClick={addGridImage} className="text-xs text-primary-600 hover:underline">
-              + Add image
-            </button>
-          </div>
-          <input
-            type="file"
-            ref={gridFileRef}
-            accept="image/jpeg,image/png,image/gif,image/webp"
-            className="hidden"
-            onChange={handleGridImageFile}
-          />
-          {gridImages.map((img, i) => (
-            <div key={i} className="flex gap-2 items-center mb-2 flex-wrap">
-              {img.url ? (
-                <img src={img.url} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
-              ) : null}
-              <input
-                placeholder="Image URL or upload"
-                value={img.url}
-                onChange={(e) => updateGridImage(i, 'url', e.target.value)}
-                className={`${inputClass} flex-1 min-w-[120px] text-sm`}
-              />
-              <button
-                type="button"
-                onClick={() => { setPendingGridIndex(i); gridFileRef.current?.click(); }}
-                className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
-              >
-                Upload
-              </button>
-              <input
-                placeholder="Alt text"
-                value={img.alt ?? ''}
-                onChange={(e) => updateGridImage(i, 'alt', e.target.value)}
-                className={`${inputClass} w-28 text-sm`}
-              />
-              <button type="button" onClick={() => removeGridImage(i)} className={deleteBtnClass}>
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
 
         <SectionHeading>Specifications</SectionHeading>
         <label>
@@ -689,26 +623,55 @@ function SubProductForm({
         </div>
 
         <SectionHeading>Gallery</SectionHeading>
+        <p className="m-0 text-xs text-gray-500 mb-2">
+          Carousel images for the sub-product. Upload one or multiple at a time, or paste URLs.
+        </p>
         <div>
-          <div className="flex justify-between items-center mb-1">
+          <div className="flex flex-wrap gap-2 items-center mb-2">
             <span className={labelClass}>Gallery images</span>
+            <button
+              type="button"
+              onClick={() => { setPendingGalleryIndex(null); galleryFileRef.current?.click(); }}
+              disabled={uploadingGalleryMulti}
+              className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 disabled:opacity-50 shrink-0"
+            >
+              {uploadingGalleryMulti ? 'Uploading…' : 'Upload image(s)'}
+            </button>
+            <input
+              type="file"
+              ref={galleryFileRef}
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleGalleryImageFile}
+            />
             <button type="button" onClick={addGalleryImage} className="text-xs text-primary-600 hover:underline">
-              + Add image
+              + Add row (paste URL)
             </button>
           </div>
           {galleryImages.map((img, i) => (
-            <div key={i} className="flex gap-2 items-center mb-1">
+            <div key={i} className="flex gap-2 items-center mb-2 flex-wrap border border-gray-200 rounded-lg p-2 bg-gray-50/50">
+              {img.url ? (
+                <img src={img.url} alt="" className="h-12 w-12 rounded object-cover border border-gray-300 shrink-0" />
+              ) : null}
               <input
-                placeholder="Image URL"
+                placeholder="Image URL or upload"
                 value={img.url}
                 onChange={(e) => updateGalleryImage(i, 'url', e.target.value)}
-                className={`${inputClass} flex-1 text-sm`}
+                className={`${inputClass} flex-1 min-w-[120px] text-sm`}
               />
+              <button
+                type="button"
+                onClick={() => { setPendingGalleryIndex(i); galleryFileRef.current?.click(); }}
+                className="py-1.5 px-3 text-sm font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 shrink-0"
+              >
+                Upload
+              </button>
               <input
                 placeholder="Alt text (optional)"
                 value={img.alt ?? ''}
                 onChange={(e) => updateGalleryImage(i, 'alt', e.target.value)}
-                className={`${inputClass} w-48 text-sm`}
+                className={`${inputClass} w-36 text-sm`}
               />
               <button type="button" onClick={() => removeGalleryImage(i)} className={deleteBtnClass}>
                 Remove

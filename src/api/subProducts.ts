@@ -1,8 +1,6 @@
 import { request } from '../lib/api';
 import type {
   SubProduct,
-  SubProductGridIntro,
-  SubProductGridImage,
   SubProductSpec,
   SubProductGallerySlide,
   SubProductGalleryImage,
@@ -15,8 +13,6 @@ import type {
 
 export type {
   SubProduct,
-  SubProductGridIntro,
-  SubProductGridImage,
   SubProductSpec,
   SubProductGallerySlide,
   SubProductGalleryImage,

@@ -1,18 +1,5 @@
 import { request } from '../lib/api';
 
-/** Grid intro for sub-product detail page */
-export interface SubProductGridIntro {
-  title?: string;
-  subtitle?: string;
-  body?: string;
-}
-
-/** Single image in grid section */
-export interface SubProductGridImage {
-  url: string;
-  alt?: string;
-}
-
 /** Single spec row (label / value) */
 export interface SubProductSpec {
   label: string;
@@ -91,8 +78,8 @@ export interface SubProduct {
   title: string;
   description: string;
   image: string;
-  gridIntro?: SubProductGridIntro;
-  gridImages?: SubProductGridImage[];
+  /** If true, show "™" after title on the frontend (trademark registered) */
+  showTrademark?: boolean;
   specDescription?: string;
   specs?: SubProductSpec[];
   /** Deprecated: old shape. Still optional for compatibility. */
