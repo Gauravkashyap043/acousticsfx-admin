@@ -1,5 +1,11 @@
 import { request } from '../lib/api';
 
+/** Products whose `categorySlug` matches this category (from GET list only). */
+export interface CategoryLinkedProduct {
+  slug: string;
+  title: string;
+}
+
 export interface CategoryItem {
   _id: string;
   slug: string;
@@ -12,6 +18,8 @@ export interface CategoryItem {
   metaDescription?: string;
   createdAt?: string;
   updatedAt?: string;
+  /** Populated on admin list; assign products under Products → Category field. */
+  linkedProducts?: CategoryLinkedProduct[];
 }
 
 export interface CategoryListResponse {

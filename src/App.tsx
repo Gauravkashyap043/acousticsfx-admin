@@ -10,7 +10,6 @@ import DashboardHome from './pages/DashboardHome'
 import Users from './pages/Users'
 import Categories from './pages/Categories'
 import Products from './pages/Products'
-import SubProducts from './pages/SubProducts'
 import Testimonials from './pages/Testimonials'
 import Contact from './pages/Contact'
 import Newsletter from './pages/Newsletter'
@@ -44,9 +43,6 @@ function App() {
               </Route>
               <Route element={<RequireTab tabKey="products" />}>
                 <Route path="products" element={<Products />} />
-              </Route>
-              <Route element={<RequireTab tabKey="sub-products" />}>
-                <Route path="sub-products" element={<SubProducts />} />
               </Route>
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="contact" element={<Contact />} />

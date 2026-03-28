@@ -6,19 +6,16 @@ export interface SubProductSpec {
   value: string;
 }
 
-/** Gallery slide (large + small image) */
 export interface SubProductGallerySlide {
   large: string;
   small: string;
 }
 
-/** Gallery image (single image; UI derives large/small layout) */
 export interface SubProductGalleryImage {
   url: string;
   alt?: string;
 }
 
-/** Single profile option in the \"Product Profiles\" section */
 export interface SubProductProfile {
   id?: string;
   name: string;
@@ -70,21 +67,24 @@ export interface SubProductFinishesSection {
   items?: SubProductFinishShade[];
 }
 
-/** Sub-product with full detail fields for product detail page */
-export interface SubProduct {
-  /** Stable id for admin references (string ObjectId) */
-  id?: string;
+/** Flat product (detail page + listing) */
+export interface ProductItem {
+  _id: string;
   slug: string;
   title: string;
   description: string;
   image: string;
+  heroImage?: string;
+  categorySlug?: string;
+  order: number;
+  shortDescription?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   showTrademark?: boolean;
   specSectionTitle?: string;
   specDescription?: string;
   specs?: SubProductSpec[];
-  /** Deprecated: old shape. Still optional for compatibility. */
   gallerySlides?: SubProductGallerySlide[];
-  /** Preferred */
   galleryImages?: SubProductGalleryImage[];
   profilesSection?: SubProductProfilesSection;
   substratesSection?: SubProductSubstratesSection;
@@ -93,24 +93,6 @@ export interface SubProduct {
   certificationsSectionDescription?: string;
   certifications?: SubProductCertification[];
   finishesSection?: SubProductFinishesSection;
-}
-
-export interface ProductItem {
-  _id: string;
-  slug: string;
-  title: string;
-  description: string;
-  image: string;
-  heroImage?: string;
-  subProducts: SubProduct[];
-  categorySlug?: string;
-  order: number;
-  panelsSectionTitle?: string;
-  panelsSectionDescription?: string;
-  shortDescription?: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  showTrademark?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -119,22 +101,7 @@ export interface ProductListResponse {
   items: ProductItem[];
 }
 
-export type CreateProductBody = {
-  slug: string;
-  title: string;
-  description: string;
-  image: string;
-  heroImage?: string;
-  subProducts: SubProduct[];
-  categorySlug?: string;
-  order?: number;
-  panelsSectionTitle?: string;
-  panelsSectionDescription?: string;
-  shortDescription?: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  showTrademark?: boolean;
-};
+export type CreateProductBody = Omit<ProductItem, '_id' | 'createdAt' | 'updatedAt'>;
 
 export type UpdateProductBody = CreateProductBody;
 

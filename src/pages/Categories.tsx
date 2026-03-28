@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCategoriesList } from '../hooks/useCategoriesList';
 import {
   createCategory,
   updateCategory,
   deleteCategory,
   type CategoryItem,
+  type CategoryLinkedProduct,
 } from '../api/categories';
 import { useQueryClient } from '@tanstack/react-query';
 import Modal from '../components/Modal';
@@ -143,6 +145,13 @@ function CategoryForm({
           <p className="m-0 mt-1 text-xs text-gray-500">Lower numbers appear first in nav and lists.</p>
         </label>
 
+        {category ? (
+          <>
+            <SectionHeading>Products in this category</SectionHeading>
+            <CategoryLinkedProductsList products={category.linkedProducts} categorySlug={category.slug} />
+          </>
+        ) : null}
+
         <SectionHeading>SEO (optional)</SectionHeading>
         <label>
           <span className={labelClass}>Meta title</span>
@@ -184,6 +193,37 @@ function CategoryForm({
         {error && <p className="m-0 text-sm text-red-600">{error}</p>}
       </form>
     </section>
+  );
+}
+
+function CategoryLinkedProductsList({
+  products,
+  categorySlug,
+}: {
+  products: CategoryLinkedProduct[] | undefined;
+  categorySlug: string;
+}) {
+  const list = products ?? [];
+  if (list.length === 0) {
+    return (
+      <p className="m-0 text-sm text-gray-500">
+        No products use this category yet. Open{' '}
+        <Link to="/dashboard/products" className="text-primary-600 hover:underline">
+          Products
+        </Link>{' '}
+        and set <span className="font-mono">Category</span> to <span className="font-mono">{categorySlug}</span>.
+      </p>
+    );
+  }
+  return (
+    <ul className="m-0 pl-4 list-disc text-sm text-gray-700 space-y-1">
+      {list.map((p) => (
+        <li key={p.slug}>
+          <span className="font-medium">{p.title}</span>{' '}
+          <span className="text-gray-400 font-mono text-xs">({p.slug})</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -270,7 +310,7 @@ export default function Categories() {
           open={!!editing}
           onClose={() => { setEditing(null); setSaveError(null); }}
           title={editing ? `Edit: ${editing.name}` : ''}
-          maxWidth="max-w-xl"
+          maxWidth="max-w-2xl"
         >
           {editing && (
             <CategoryForm
@@ -299,6 +339,7 @@ export default function Categories() {
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Name</th>
                     <th className="py-2 px-3">Tagline</th>
+                    <th className="py-2 px-3">Products</th>
                     <th className="py-2 px-3">Description</th>
                     <th className="py-2 px-3">Order</th>
                     <th className="py-2 px-3"></th>
@@ -320,6 +361,30 @@ export default function Categories() {
                       <td className="py-2 px-3 font-mono text-sm">{item.slug}</td>
                       <td className="py-2 px-3">{item.name}</td>
                       <td className="py-2 px-3 text-gray-500 max-w-[140px] truncate">{item.tagline || '—'}</td>
+                      <td className="py-2 px-3 align-top max-w-[220px]">
+                        {item.linkedProducts && item.linkedProducts.length > 0 ? (
+                          <div className="text-xs text-gray-700">
+                            <span className="inline-flex items-center rounded-full bg-primary-50 text-primary-800 px-2 py-0.5 font-medium mb-1">
+                              {item.linkedProducts.length} product
+                              {item.linkedProducts.length === 1 ? '' : 's'}
+                            </span>
+                            <ul className="m-0 mt-1 pl-3 list-disc text-gray-600 max-h-[72px] overflow-y-auto">
+                              {item.linkedProducts.slice(0, 6).map((p) => (
+                                <li key={p.slug} className="truncate" title={p.title}>
+                                  {p.title}
+                                </li>
+                              ))}
+                            </ul>
+                            {item.linkedProducts.length > 6 ? (
+                              <p className="m-0 mt-0.5 text-gray-400 text-[11px]">
+                                +{item.linkedProducts.length - 6} more — see Edit
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">None</span>
+                        )}
+                      </td>
                       <td className="py-2 px-3 text-gray-500 max-w-[200px] truncate">
                         {item.description || '—'}
                       </td>

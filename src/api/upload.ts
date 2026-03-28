@@ -1,28 +1,94 @@
 import { getToken } from '../lib/api';
+import { compressImageForUpload } from '../lib/compressImageForUpload';
 
 const getBaseUrl = () => import.meta.env.VITE_API_URL ?? 'https://api.themoonlit.in';
+
+/** ImageKit global upload endpoint — browser talks here directly (not via your API). */
+const IMAGEKIT_UPLOAD_URL = 'https://upload.imagekit.io/api/v1/files/upload';
 
 export interface UploadImageResponse {
   url: string;
 }
 
-/** Upload a image file; returns the ImageKit URL. Auth required. */
-export async function uploadImage(file: File): Promise<UploadImageResponse> {
-  const url = `${getBaseUrl()}/api/admin/upload-image`;
+interface ImageKitAuthResponse {
+  token: string;
+  expire: number;
+  signature: string;
+  publicKey: string;
+}
+
+async function uploadViaBackendProxy(file: File): Promise<UploadImageResponse> {
   const token = getToken();
   const form = new FormData();
   form.append('file', file);
-
-  const res = await fetch(url, {
+  const res = await fetch(`${getBaseUrl()}/api/admin/upload-image`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: form,
   });
-
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = (body as { error?: string }).error ?? res.statusText;
     throw new Error(message);
   }
   return body as UploadImageResponse;
+}
+
+/**
+ * Upload image to ImageKit.
+ * 1) Tries direct browser → ImageKit (fast when your API is far away).
+ * 2) Falls back to POST through your API if auth is unavailable or direct upload fails.
+ */
+async function fetchUploadAuth(base: string, authHeader: string | undefined): Promise<ImageKitAuthResponse | null> {
+  try {
+    const authRes = await fetch(`${base}/api/admin/upload-image-auth`, {
+      headers: authHeader ? { Authorization: authHeader } : {},
+    });
+    if (!authRes.ok) return null;
+    return (await authRes.json()) as ImageKitAuthResponse;
+  } catch {
+    return null;
+  }
+}
+
+export async function uploadImage(file: File): Promise<UploadImageResponse> {
+  const authToken = getToken();
+  const base = getBaseUrl();
+  const authHeader = authToken ? `Bearer ${authToken}` : undefined;
+
+  const [prepared, auth] = await Promise.all([
+    compressImageForUpload(file),
+    fetchUploadAuth(base, authHeader),
+  ]);
+
+  if (auth?.publicKey && auth.signature && auth.token) {
+    const ext = prepared.name.split('.').pop() || 'jpg';
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+
+    const form = new FormData();
+    form.append('file', prepared);
+    form.append('fileName', fileName);
+    form.append('folder', '/admin');
+    form.append('signature', auth.signature);
+    form.append('expire', String(auth.expire));
+    form.append('token', auth.token);
+    form.append('publicKey', auth.publicKey);
+    form.append('useUniqueFileName', 'true');
+
+    try {
+      const upRes = await fetch(IMAGEKIT_UPLOAD_URL, {
+        method: 'POST',
+        body: form,
+      });
+      const data = (await upRes.json()) as { url?: string; message?: string };
+      if (upRes.ok && data.url) {
+        return { url: data.url };
+      }
+      console.warn('ImageKit direct upload failed, using server proxy:', data.message ?? upRes.status);
+    } catch (e) {
+      console.warn('ImageKit direct upload error, using server proxy:', e);
+    }
+  }
+
+  return uploadViaBackendProxy(prepared);
 }
