@@ -2,7 +2,7 @@ import { request } from '../lib/api';
 
 export interface FooterLinkItem {
   _id: string;
-  section: 'services' | 'resources';
+  section: 'resources';
   label: string;
   href?: string;
   order?: number;

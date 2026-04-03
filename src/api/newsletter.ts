@@ -23,3 +23,10 @@ export function listNewsletterSubscriptions(params?: {
   const q = sp.toString();
   return request<NewsletterSubscriptionsListResponse>(`/api/admin/newsletter-subscriptions${q ? `?${q}` : ''}`);
 }
+
+export function addNewsletterSubscription(data: { email: string }): Promise<{ ok: boolean; message: string; error?: string }> {
+  return request<{ ok: boolean; message: string; error?: string }>('/api/newsletter', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}

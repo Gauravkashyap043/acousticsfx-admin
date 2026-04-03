@@ -13,6 +13,8 @@ import {
   type SubProductAboutTab,
   type SubProductFinishesSection,
   type SubProductCertification,
+  type VisualizerTexture,
+  type VisualizerDimensions,
 } from '../api/products';
 import { useQueryClient } from '@tanstack/react-query';
 import type { CategoryItem } from '../api/categories';
@@ -28,7 +30,8 @@ type InlineImageSlot =
   | { kind: 'certification'; index: number }
   | { kind: 'substrate'; index: number }
   | { kind: 'finish'; index: number }
-  | { kind: 'gallery'; index: number };
+  | { kind: 'gallery'; index: number }
+  | { kind: 'visualizer'; index: number };
 
 const inlineUploadBtnClass =
   'py-1 px-2 text-xs font-medium text-primary-600 border border-primary-400 rounded-lg hover:bg-primary-50 disabled:opacity-50 shrink-0 cursor-pointer';
@@ -138,6 +141,11 @@ function ProductForm({
   );
   const [finishItems, setFinishItems] = useState<FinishItem[]>(initial?.finishesSection?.items ?? []);
 
+  const [visWidth, setVisWidth] = useState<VisualizerDimensions['width']>(initial?.visualizerDimensions?.width ?? 120);
+  const [visHeight, setVisHeight] = useState<VisualizerDimensions['height']>(initial?.visualizerDimensions?.height ?? 60);
+  const [visDepth, setVisDepth] = useState<VisualizerDimensions['depth']>(initial?.visualizerDimensions?.depth ?? 4);
+  const [visTextures, setVisTextures] = useState<VisualizerTexture[]>(initial?.visualizerTextures ?? []);
+
   const addSpec = () => setSpecs((prev) => [...prev, { label: '', value: '' }]);
   const updateSpec = (i: number, field: 'label' | 'value', value: string) => {
     setSpecs((prev) => {
@@ -216,6 +224,20 @@ function ProductForm({
             return next;
           });
           break;
+        case 'visualizer':
+          setVisTextures((prev) => {
+            const next = [...prev];
+            if (next[slot.index]) {
+              const currentName = next[slot.index].name?.trim();
+              next[slot.index] = { 
+                ...next[slot.index], 
+                image: url,
+                name: currentName || `Material ${slot.index + 1}`
+              };
+            }
+            return next;
+          });
+          break;
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Upload failed');
@@ -256,6 +278,16 @@ function ProductForm({
     });
   };
   const removeFinish = (i: number) => setFinishItems((prev) => prev.filter((_, idx) => idx !== i));
+
+  const addVisTexture = () => setVisTextures((prev) => [...prev, { name: '', image: '' }]);
+  const updateVisTexture = (i: number, field: keyof VisualizerTexture, value: string) => {
+    setVisTextures((prev) => {
+      const next = [...prev];
+      next[i] = { ...next[i], [field]: value };
+      return next;
+    });
+  };
+  const removeVisTexture = (i: number) => setVisTextures((prev) => prev.filter((_, idx) => idx !== i));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -347,6 +379,14 @@ function ProductForm({
         },
       }),
       certifications: certificationsClean,
+      visualizerDimensions: {
+        width: visWidth,
+        height: visHeight,
+        depth: visDepth,
+      },
+      visualizerTextures: visTextures
+        .map((vt) => ({ name: vt.name.trim(), image: vt.image.trim() }))
+        .filter((vt) => vt.name && vt.image),
     };
 
     if (profilesSectionRef.current) {
@@ -759,6 +799,81 @@ function ProductForm({
                 type="button"
                 onClick={() => removeFinish(i)}
                 className={`${deleteBtnClass} md:col-span-1 mt-1`}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <SectionHeading>3D Visualizer</SectionHeading>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label>
+            <span className={labelClass}>Default Width (cm)</span>
+            <input
+              type="number"
+              value={visWidth}
+              onChange={(e) => setVisWidth(Number(e.target.value) || 0)}
+              className={inputClass}
+            />
+          </label>
+          <label>
+            <span className={labelClass}>Default Height (cm)</span>
+            <input
+              type="number"
+              value={visHeight}
+              onChange={(e) => setVisHeight(Number(e.target.value) || 0)}
+              className={inputClass}
+            />
+          </label>
+          <label>
+            <span className={labelClass}>Default Depth (cm)</span>
+            <input
+              type="number"
+              value={visDepth}
+              onChange={(e) => setVisDepth(Number(e.target.value) || 0)}
+              className={inputClass}
+            />
+          </label>
+        </div>
+        <div>
+          <div className="flex justify-between items-center mb-1 mt-2">
+            <span className={labelClass}>Textures / Swatches</span>
+            <button type="button" onClick={addVisTexture} className="text-xs text-primary-600 hover:underline">
+              + Add texture
+            </button>
+          </div>
+          {visTextures.map((vt, i) => (
+            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 items-start">
+              <input
+                placeholder="Name (e.g. Oak)"
+                value={vt.name}
+                onChange={(e) => updateVisTexture(i, 'name', e.target.value)}
+                className={`${inputClass} text-sm`}
+              />
+              <div className="flex gap-1 items-center flex-wrap min-w-0">
+                {vt.image ? (
+                  <img src={vt.image} alt="" className="h-10 w-10 rounded object-cover border border-gray-300 shrink-0" />
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => openInlineImagePicker({ kind: 'visualizer', index: i })}
+                  disabled={uploadingSlot !== null}
+                  className={inlineUploadBtnClass}
+                >
+                  {slotUploading(uploadingSlot, 'visualizer', i) ? '…' : 'Upload'}
+                </button>
+                <input
+                  placeholder="Image URL"
+                  value={vt.image}
+                  onChange={(e) => updateVisTexture(i, 'image', e.target.value)}
+                  className={`${inputClass} text-sm flex-1 min-w-0`}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => removeVisTexture(i)}
+                className={`${deleteBtnClass} mt-1`}
               >
                 Remove
               </button>

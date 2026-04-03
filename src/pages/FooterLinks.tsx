@@ -12,7 +12,7 @@ import Modal from '../components/Modal';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
 import PageShell from '../components/PageShell';
 import { CompactLoader } from '../components/EmptyState';
-const SECTIONS: FooterLinkItem['section'][] = ['services', 'resources'];
+const SECTIONS: FooterLinkItem['section'][] = ['resources'];
 
 /* ─── Footer text settings via CMS ─── */
 
@@ -84,7 +84,7 @@ function LinkForm({
   isSaving: boolean;
   error: string | null;
 }) {
-  const [section, setSection] = useState<FooterLinkItem['section']>(link?.section ?? 'services');
+  const [section, setSection] = useState<FooterLinkItem['section']>(link?.section ?? 'resources');
   const [label, setLabel] = useState(link?.label ?? '');
   const [href, setHref] = useState(link?.href ?? '');
   const [order, setOrder] = useState(link?.order ?? 0);
@@ -150,11 +150,11 @@ export default function FooterLinks() {
     catch (e) { alert(e instanceof Error ? e.message : 'Failed'); }
   }
 
-  const renderSection = (sec: 'services' | 'resources') => {
+  const renderSection = (sec: 'resources') => {
     const items = (data?.items ?? []).filter((i) => i.section === sec);
     return (
       <div key={sec}>
-        <h3 className="m-0 mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">{sec === 'services' ? 'Our Services' : 'Resources'}</h3>
+        <h3 className="m-0 mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">{sec === 'resources' ? 'Resources' : ''}</h3>
         {items.length === 0 && <p className="text-sm text-gray-500">No items yet.</p>}
         {items.length > 0 && (
           <div className="overflow-x-auto rounded-xl border border-gray-300">

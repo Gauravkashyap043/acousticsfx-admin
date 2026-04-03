@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNewsletterSubscriptionsList } from '../hooks/useNewsletterSubscriptionsList';
+import { addNewsletterSubscription } from '../api/newsletter';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 import { inputClass, labelClass, cancelBtnClass } from '../lib/styles';
@@ -17,11 +19,16 @@ function formatDate(iso: string) {
 }
 
 export default function Newsletter() {
+  const queryClient = useQueryClient();
   const [skip, setSkip] = useState(0);
   const { data, isLoading, isError, error } = useNewsletterSubscriptionsList({ limit: PAGE_SIZE, skip });
   const [sendModalOpen, setSendModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [newEmails, setNewEmails] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [addStatus, setAddStatus] = useState<{ type: 'error'|'success', msg: string } | null>(null);
   const [sendStatus, setSendStatus] = useState<'idle' | 'success' | 'info'>('idle');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -59,6 +66,54 @@ export default function Newsletter() {
     setSendModalOpen(true);
   };
 
+  const handleOpenAddModal = () => {
+    setNewEmails('');
+    setAddStatus(null);
+    setAddModalOpen(true);
+  };
+
+  const handleAddEmails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddStatus(null);
+    setIsAdding(true);
+    
+    // Split by commas, newlines, or spaces
+    const emailsToProcess = newEmails
+      .split(/[\n, ]+/)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+
+    if (emailsToProcess.length === 0) {
+      setAddStatus({ type: 'error', msg: 'Please provide at least one email.' });
+      setIsAdding(false);
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const email of emailsToProcess) {
+      try {
+        const res = await addNewsletterSubscription({ email });
+        if (res.ok) successCount++;
+        else failCount++;
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsAdding(false);
+    if (successCount > 0) {
+      setNewEmails('');
+      setAddStatus({ type: 'success', msg: `Successfully added ${successCount} email(s). ${failCount > 0 ? `Failed: ${failCount}` : ''}` });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'newsletter-subscriptions'] });
+      // Clear message after 3 seconds
+      setTimeout(() => setAddStatus(null), 3000);
+    } else {
+      setAddStatus({ type: 'error', msg: `Failed to add provided emails. Make sure they are valid.` });
+    }
+  };
+
   const handleSendNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
     setSendStatus('info');
@@ -68,13 +123,22 @@ export default function Newsletter() {
     <PageShell
       title="Newsletter"
       action={
-        <button
-          type="button"
-          onClick={handleOpenSendModal}
-          className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
-        >
-          Send newsletter
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="py-2 px-4 text-sm font-medium text-primary-600 bg-white border border-primary-600 rounded-lg cursor-pointer hover:bg-primary-50"
+          >
+            Add emails
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenSendModal}
+            className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700"
+          >
+            Send newsletter
+          </button>
+        </div>
       }
     >
 
@@ -136,6 +200,50 @@ export default function Newsletter() {
                 className={cancelBtnClass}
               >
                 Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
+
+        <Modal
+          open={addModalOpen}
+          onClose={() => setAddModalOpen(false)}
+          title="Add manual emails"
+          maxWidth="max-w-md"
+        >
+          <p className="text-gray-500 text-sm mb-4">
+            Enter multiple emails separated by commas or new lines. They will be added to the subscriber list.
+          </p>
+          <form onSubmit={handleAddEmails} className="flex flex-col gap-4">
+            <label>
+              <textarea
+                value={newEmails}
+                onChange={(e) => setNewEmails(e.target.value)}
+                placeholder="email1@example.com, email2@example.com..."
+                rows={5}
+                required
+                className={`${inputClass} resize-y w-full`}
+              />
+            </label>
+            {addStatus && (
+              <p className={addStatus.type === 'error' ? 'text-red-500 text-sm' : 'text-green-500 text-sm'}>
+                {addStatus.msg}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={isAdding || !newEmails.trim()}
+                className="py-2 px-4 text-sm font-medium text-white bg-primary-600 border-0 rounded-lg cursor-pointer hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAdding ? 'Adding...' : 'Add emails'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddModalOpen(false)}
+                className={cancelBtnClass}
+              >
+                Close
               </button>
             </div>
           </form>
