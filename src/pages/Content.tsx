@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useContentList } from '../hooks/useContentList';
 import { useUpdateContentMutation } from '../hooks/useUpdateContentMutation';
 import type { ContentItem } from '../api/content';
@@ -19,11 +19,13 @@ export default function Content() {
 
   const { data, isLoading, isError, error } = useContentList({ limit: 100 });
   const updateMutation = useUpdateContentMutation();
+  const topRef = useRef<HTMLDivElement>(null);
 
   function startEdit(item: ContentItem) {
     setEditing(item);
     setFormValue(item.value);
     setFormType((item.type as 'text' | 'image') || 'text');
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
   }
 
   function cancelEdit() {
@@ -46,6 +48,7 @@ export default function Content() {
 
   return (
     <PageShell title="Site content">
+        <div ref={topRef} />
         {editing && (
           <section className="mb-6">
             <h2 className="m-0 mb-4 text-base font-semibold text-gray-600">
